@@ -1,5 +1,9 @@
 export interface User {
-    id ?: string 
-    email : string 
-    password : string 
-}
+    id: string;
+    password: string;
+    email: string;
+    name: string;
+    oAuthToken?: "google" | "facebook";
+    otp?: string;
+  }
+  

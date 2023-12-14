@@ -1,16 +1,8 @@
-import { Schema, model, Document } from "mongoose";
-
+import { Schema, model } from "mongoose";
+import { User } from "../../utils/types";
 // Define the user schema
-interface IUser {
-  id: string;
-  password: string;
-  email: string;
-  name: string;
-  oAuthToken?: "google" | "facebook";
-  otp?: string;
-}
 
-const UserSchema = new Schema<IUser, Document>(
+const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -22,4 +14,4 @@ const UserSchema = new Schema<IUser, Document>(
 );
 
 // Create and export the User model
-export const UserModel = model<IUser, Document>("User", UserSchema);
+export const UserModel = model<User>("User", UserSchema);
