@@ -62,3 +62,34 @@
  *        '400':
  *              description: Bad request
  */
+
+/**
+ * @swagger
+ * /login-with-otp:
+ *   post:
+ *     summary: Login with One-Time Password (OTP)
+ *     description: Login using a one-time password for 2FA authentication " OTP authentication involves generating a unique password that is valid for a single login session or transaction, providing an extra layer of security compared to traditional password-based authentication methods. "
+ *     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: body
+ *         name: OTP Credentials
+ *         description: OTP credentials for login
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *               description: The email address of the user
+ *             otp:
+ *               type: string
+ *               description: The one-time password for login
+ *     responses:
+ *       '200':
+ *         description: Login successful
+ *       '401':
+ *         description: Unauthorized - Invalid OTP or authentication failure
+ *       '400':
+ *         description: Bad request
+ */
