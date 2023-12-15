@@ -3,7 +3,7 @@
  * /update:
  *   put:
  *     summary: update user data [email - password]
- *     description: updated user data after Authentication 
+ *     description: updated user data after Authentication
  *     tags:
  *          - User
  *     security:
@@ -17,7 +17,7 @@
  *           type: string
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
@@ -35,7 +35,7 @@
  * @swagger
  * /resend-verification-email:
  *   put:
- *     summary: Resend verification email for user 
+ *     summary: Resend verification email for user
  *     description: Resend the verification email to the user's registered email address.
  *     tags:
  *          - User
@@ -50,7 +50,7 @@
  *           type: string
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
@@ -92,4 +92,62 @@
  *         description: Unauthorized - Invalid OTP or authentication failure
  *       '400':
  *         description: Bad request
+ */
+/**
+ *
+ * @swagger
+ * /forget-password:
+ *      post:
+ *              tags:
+ *                  - Forget Password
+ *              summary: Request a password reset
+ *              description: Send a password reset email to the user's registered email address.
+ *              requestBody:
+ *               required: true
+ *               content:
+ *                 application/json:
+ *                    schema:
+ *                      type: object
+ *                      properties:
+ *                         email:
+ *                           type: string
+ *                           format: email
+ *                           description: The email address associated with the user account.
+ *                      required:
+ *                          - email
+ *              responses:
+ *                    '200':
+ *                       description: Password reset email sent successfully.
+ *                    '404':
+ *                     description: User not found or email address not registered.
+ *
+ */
+/**
+ *
+ * @swagger
+ * /forget-password:
+ *      post:
+ *              tags:
+ *                  - Forget Password
+ *              summary: Request a password reset
+ *              description: Send a password reset email to the user's registered email address.
+ *              requestBody:
+ *               required: true
+ *               content:
+ *                 application/json:
+ *                    schema:
+ *                      type: object
+ *                      properties:
+ *                         email:
+ *                           type: string
+ *                           format: email
+ *                           description: The email address associated with the user account.
+ *                      required:
+ *                          - email
+ *              responses:
+ *                    '200':
+ *                       description: Password reset email sent successfully.
+ *                    '404':
+ *                     description: User not found or email address not registered.
+ *
  */
