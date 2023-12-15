@@ -1,7 +1,7 @@
 import { userDAO } from "../../utils/DAO/userDAO";
 import { User } from "../../utils/types";
 import { Model } from "mongoose";
-import userModel from "./user.model";
+import {UserModel} from "./user.model";
 
 class userRepo implements userDAO {
   private model: Model<User>;
@@ -25,4 +25,4 @@ class userRepo implements userDAO {
 
 export type userRepoType = userRepo;
 
-export const db = new userRepo(userModel);
+export const db = new userRepo(UserModel);
