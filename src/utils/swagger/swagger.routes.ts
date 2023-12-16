@@ -120,3 +120,26 @@
  *       400:
  *         description: Bad request
  */
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: Sign in user
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User signed in successfully
+ *       401:
+ *         description: Unauthorized
+ */
