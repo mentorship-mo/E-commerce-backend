@@ -65,6 +65,83 @@
 
 /**
  * @swagger
+ * /login-with-otp:
+ *   post:
+ *     summary: Login with One-Time Password (OTP)
+ *     description: Login using a one-time password for 2FA authentication " OTP authentication involves generating a unique password that is valid for a single login session or transaction, providing an extra layer of security compared to traditional password-based authentication methods. "
+ *     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: body
+ *         name: OTP Credentials
+ *         description: OTP credentials for login
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *               description: The email address of the user
+ *             otp:
+ *               type: string
+ *               description: The one-time password for login
+ *     responses:
+ *       '200':
+ *         description: Login successful
+ *       '401':
+ *         description: Unauthorized - Invalid OTP or authentication failure
+ *       '400':
+ *         description: Bad request
+ */
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               oAuthToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: Sign in user
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User signed in successfully
+ *       401:
+ *         description: Unauthorized
  * /resend-verification-email:
  *   put:
  *     summary: Resend verification email for user 
