@@ -62,7 +62,6 @@
  *       '400':
  *         description: Bad request
  */
-
 /**
  * @swagger
  * /enable-2fa-request:
@@ -154,34 +153,6 @@
 
 /**
  * @swagger
- * /forget-password:
- *   post:
- *     tags:
- *       - Forget Password
- *     summary: Request a password reset
- *     description: Send a password reset email to the user's registered email address.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: The email address associated with the user account.
- *             required:
- *               - email
- *     responses:
- *       '200':
- *         description: Password reset email sent successfully.
- *       '404':
- *         description: User not found or email address not registered.
- */
-
-/**
- * @swagger
  * /signup:
  *   post:
  *     summary: Register a new user
@@ -253,4 +224,5 @@
  *       '200':
  *         description: New access token generated successfully
  *       '401':
- *         description: Unauthorized - Invalid or expired refresh
+ *         description: Unauthorized - Invalid or expired refresh token
+ */
