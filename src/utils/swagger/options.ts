@@ -7,6 +7,7 @@ const options: swaggerJsdoc.Options = {
       title: "REST API Docs For E-commerce",
       version: "1.0.0",
     },
+    server: [{ url: "http://localhost:4000/" }],
     security: [
       {
         bearerAuth: [],
@@ -17,4 +18,3 @@ const options: swaggerJsdoc.Options = {
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
-
