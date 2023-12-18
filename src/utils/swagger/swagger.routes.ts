@@ -2,8 +2,40 @@
  * @swagger
  * /update:
  *   put:
- *     summary: update user data [email - password]
- *     description: updated user data after Authentication 
+ *     summary: Update user data [email - password]
+ *     description: Updated user data after Authentication
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *           example:
+ *             email: user@example.com
+ *             password: newPassword123
+ *     responses:
+ *       '200':
+ *         description: User updated successfully
+ *       '400':
+ *         description: Bad request
+ */
+/**
+ * @swagger
+ * /resend-verification-email:
+ *   put:
+ *     summary: Resend verification email for user 
+ *     description: Resend the verification email to the user's registered email address.
  *     tags:
  *          - User
  *     security:
@@ -23,15 +55,12 @@
  *             $ref: '#/components/schemas/User'
  *           example:
  *             email: user@example.com
- *             password: newPassword123
  *     responses:
  *        '200':
- *              description: user updated successfully
+ *              description: Email sent successfully
  *        '400':
  *              description: Bad request
  */
-
-
 
 /**
  * @swagger
@@ -62,7 +91,7 @@
  * /enable-2fa:
  *   post:
  *     summary: Enable Two-Factor Authentication (2FA)
- *     description: is a specific type of multi-factor authentication (MFA) that requires two forms of identification (also referred to as authentication factors) to grant access to a resource or data. These factors include the traditional method of authentication like username/email and password – plus something you have – like a smartphone – to approve the requests.
+ *     description: Enable Two-Factor Authentication (2FA)
  *     tags:
  *       - Authentication
  *     security:
@@ -89,4 +118,35 @@
  *         description: 2FA enabled successfully
  *       '400':
  *         description: Bad request or invalid verification code
+ */
+
+/**
+ * @swagger
+ * /login-with-otp:
+ *   post:
+ *     summary: Login with One-Time Password (OTP)
+ *     description: Login using a one-time password for 2FA authentication. OTP authentication involves generating a unique password that is valid for a single login session or transaction, providing an extra layer of security compared to traditional password-based authentication methods.
+ *     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: body
+ *         name: OTP Credentials
+ *         description: OTP credentials for login
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *               description: The email address of the user
+ *             otp:
+ *               type: string
+ *               description: The one-time password for login
+ *     responses:
+ *       '200':
+ *         description: Login successful
+ *       '401':
+ *         description: Unauthorized - Invalid OTP or authentication failure
+ *       '400':
+ *         description: Bad request
  */
