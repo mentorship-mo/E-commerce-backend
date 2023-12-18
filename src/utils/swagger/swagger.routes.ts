@@ -290,4 +290,26 @@
  *         description: User not found or email address not registered.
  */
 
-
+/**
+ * @swagger
+ * /refresh-token:
+ *   post:
+ *     summary: Refresh Access Token
+ *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: New access token generated successfully
+ *       '401':
+ *         description: Unauthorized - Invalid or expired refresh token
+ */
