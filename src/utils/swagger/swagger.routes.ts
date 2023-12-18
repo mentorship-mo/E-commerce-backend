@@ -2,10 +2,10 @@
  * @swagger
  * /update:
  *   put:
- *     summary: update user data [email - password]
- *     description: updated user data after Authentication 
+ *     summary: Update user data [email - password]
+ *     description: Updated user data after Authentication
  *     tags:
- *          - User
+ *       - User
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -17,7 +17,7 @@
  *           type: string
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
@@ -25,20 +25,20 @@
  *             email: user@example.com
  *             password: newPassword123
  *     responses:
- *        '200':
- *              description: user updated successfully
- *        '400':
- *              description: Bad request
+ *       '200':
+ *         description: User updated successfully
+ *       '400':
+ *         description: Bad request
  */
 
 /**
  * @swagger
  * /resend-verification-email:
  *   put:
- *     summary: Resend verification email for user 
+ *     summary: Resend verification email for user
  *     description: Resend the verification email to the user's registered email address.
  *     tags:
- *          - User
+ *       - User
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -50,17 +50,74 @@
  *           type: string
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/User'
  *           example:
  *             email: user@example.com
  *     responses:
- *        '200':
- *              description: Email sent successfully
- *        '400':
- *              description: Bad request
+ *       '200':
+ *         description: Email sent successfully
+ *       '400':
+ *         description: Bad request
+ */
+/**
+ * @swagger
+ * /enable-2fa-request:
+ *   post:
+ *     summary: Request to enable Two-Factor Authentication (2FA)
+ *     description: Request to enable 2FA for a user account
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: 2FA request sent successfully
+ *       '400':
+ *         description: Bad request
+ */
+
+/**
+ * @swagger
+ * /enable-2fa:
+ *   post:
+ *     summary: Enable Two-Factor Authentication (2FA)
+ *     description: Enable Two-Factor Authentication (2FA)
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: Verification Code
+ *         description: Verification code for enabling 2FA
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: string
+ *               description: The verification code for enabling 2FA
+ *     responses:
+ *       '200':
+ *         description: 2FA enabled successfully
+ *       '400':
+ *         description: Bad request or invalid verification code
  */
 
 /**
@@ -68,7 +125,7 @@
  * /login-with-otp:
  *   post:
  *     summary: Login with One-Time Password (OTP)
- *     description: Login using a one-time password for 2FA authentication " OTP authentication involves generating a unique password that is valid for a single login session or transaction, providing an extra layer of security compared to traditional password-based authentication methods. "
+ *     description: Login using a one-time password for 2FA authentication. OTP authentication involves generating a unique password that is valid for a single login session or transaction, providing an extra layer of security compared to traditional password-based authentication methods.
  *     tags:
  *       - Authentication
  *     parameters:
@@ -93,6 +150,7 @@
  *       '400':
  *         description: Bad request
  */
+
 /**
  * @swagger
  * /signup:
@@ -120,6 +178,7 @@
  *       400:
  *         description: Bad request
  */
+
 /**
  * @swagger
  * /signin:
@@ -142,12 +201,16 @@
  *         description: User signed in successfully
  *       401:
  *         description: Unauthorized
- * /resend-verification-email:
- *   put:
- *     summary: Resend verification email for user 
- *     description: Resend the verification email to the user's registered email address.
+ */
+
+/**
+ * @swagger
+ * /refresh-token:
+ *   post:
+ *     summary: Refresh Access Token
+ *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
  *     tags:
- *          - User
+ *       - Authentication
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -157,17 +220,9 @@
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content: 
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *           example:
- *             email: user@example.com
  *     responses:
- *        '200':
- *              description: Email sent successfully
- *        '400':
- *              description: Bad request
+ *       '200':
+ *         description: New access token generated successfully
+ *       '401':
+ *         description: Unauthorized - Invalid or expired refresh token
  */
