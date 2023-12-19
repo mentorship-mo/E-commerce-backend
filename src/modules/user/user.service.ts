@@ -1,20 +1,20 @@
-import {userRepoType, db} from './user.repo'; 
-// import { User } from './user.model'; 
+import { userRepoType } from "./user.repo";
 
-class UserService {
-    private userRepository: userRepoType;
+export class UserService {
+  private readonly repo: userRepoType;
 
-    constructor(userRepository: userRepoType) {
-        this.userRepository = userRepository;
-    }
+  constructor(repo: userRepoType) {
+    this.repo = repo;
+  }
 
-    async getAllUsers(): Promise<void> {
-      
-    }
+  // getAllUsers(): Promise<void> {}
 
-    async createUser(): Promise<void> {
-  
-    }
+  createUser(userData: any): Promise<void> {
+    try {  
+      return this.repo.createUser(userData);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+  }
 }
-
-export default UserService;
+}
