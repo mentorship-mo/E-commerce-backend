@@ -12,9 +12,9 @@ class userRepo implements userDAO {
   async createUser(user: User): Promise<void> {
     await this.model.create(user);
   }
-  // getUserByEmail(email: string): Promise<User | null> {
-  //   throw new Error("Method not implemented.");
-  // }
+  getUserByEmail(email: string): Promise<User | null> {
+    throw new Error("Method not implemented.");
+  }
   // getUserById(id: string): Promise<User | null> {
   //   throw new Error("Method not implemented.");
   // }
