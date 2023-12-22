@@ -33,7 +33,7 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
 
     return passwordsMatch;
   } catch (error) {
-    console.error("Error authenticating user:", error);
+    console.error("error authenticating user:", error);
     throw error;
   }
 }
