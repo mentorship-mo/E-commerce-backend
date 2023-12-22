@@ -28,7 +28,7 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
       return false;
     }
 
-    // check if passwords match 
+    // check if password nmatch 
     const passwordsMatch = await bcrypt.compare(password, user.password);
 
     return passwordsMatch;
