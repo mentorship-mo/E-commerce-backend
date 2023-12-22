@@ -4,6 +4,8 @@ export interface User {
   email: string;
   name: string;
   verified: boolean;
+  verificationToken?: string;
   oAuthToken?: "google" | "facebook";
   otp?: string;
 }
+

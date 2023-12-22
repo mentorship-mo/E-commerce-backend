@@ -21,7 +21,14 @@ class userRepo implements userDAO {
   // getUsers(): Promise<User[]> {
   //   throw new Error("Method not implemented.");
   // }
+  async verifyEmail(verificationToken: string): Promise<any> {
+    return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
+  }
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.model.findOne({ email })
+  }
 }
+
 
 type userRepoType = userRepo;
 
