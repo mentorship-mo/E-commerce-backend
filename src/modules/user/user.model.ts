@@ -24,6 +24,7 @@ const UserSchema = new Schema<User>(
       type: Boolean,
       default: false,
     },
+    verificationToken : { type: String, default: "" },
     oAuthToken: { type: String, enum: ["google", "facebook"] },
     otp: { type: String, default: "" },
    

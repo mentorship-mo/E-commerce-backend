@@ -17,6 +17,7 @@ app.use("/v1", combinedRoutes);
 // DataBase connection
 connectToMongoDB();
 
+
 const Port: string = process.env.PORT || "4000";
 app.listen(Port, () => {
   console.log(
