@@ -7,5 +7,5 @@ export interface User {
   verificationToken?: string;
   oAuthToken?: "google" | "facebook";
   otp?: string;
+  image: string;
 }
-
