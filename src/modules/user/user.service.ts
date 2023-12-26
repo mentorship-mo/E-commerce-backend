@@ -24,26 +24,6 @@ export class UserService {
       throw error;
     }
   }
-}
-
-async authenticateUser(email: string, password: string): Promise<boolean> {
-  try {
-    const user = await this.repo.getUserByEmail(email);
-
-    if (!user) {
-      // user not found with the provided email
-      return false;
-    }
-
-    // check if password nmatch 
-    const passwordsMatch = await bcrypt.compare(password, user.password);
-
-    return passwordsMatch;
-  } catch (error) {
-    console.error("error authenticating user:", error);
-    throw error;
-  }
-}
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
 
@@ -65,4 +45,25 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
     user.verificationToken = verificationToken(user.id);
     sendVerificationEmail(user.email, user.verificationToken);
   };
+  async authenticateUser(email: string, password: string): Promise<boolean> {
+    try {
+      const user = await this.repo.getUserByEmail(email);
+  
+      if (!user) {
+        // user not found with the provided email
+        return false;
+      }
+  
+      // check if password nmatch 
+      const passwordsMatch = await bcrypt.compare(password, user.password);
+  
+      return passwordsMatch;
+    } catch (error) {
+      console.error("error authenticating user:", error);
+      throw error;
+    }
+  }
+    
+  
 }
+

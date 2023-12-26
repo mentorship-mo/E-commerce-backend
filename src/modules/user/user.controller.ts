@@ -11,7 +11,23 @@ class UserController {
   constructor(service) {
     this.service = service;
   }
+  authSignIn : RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { email, password } = req.body;
 
+      // assuming UserService has a method for authentication
+      const isAuthenticated = await this.service.authenticateUser(email, password);
+
+      if (isAuthenticated) {
+        res.status(200).send({ message: "user authenticated successfully" });
+      } else {
+        res.status(401).send({ message: "Invalid email or password" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
   createUser : RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = (req.body);
@@ -45,6 +61,7 @@ class UserController {
 
 initRoutes() {
   this.router.post("/", this.createUser);
+  this.router.post("/signin", this.authSignIn);
   this.router.get("/verify-email/:token", this.verifyEmail);
   this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
 }
