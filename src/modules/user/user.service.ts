@@ -24,7 +24,6 @@ export class UserService {
       throw error;
     }
   }
-}
 
 async authenticateUser(email: string, password: string): Promise<boolean> {
   try {
@@ -65,25 +64,15 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
     user.verificationToken = verificationToken(user.id);
     sendVerificationEmail(user.email, user.verificationToken);
   };
-  async authenticateUser(email: string, password: string): Promise<boolean> {
+  async getLoggedUserDataByToken(token: string): Promise<User | null> {
     try {
-      const user = await this.repo.getUserByEmail(email);
-  
-      if (!user) {
-        // user not found with the provided email
-        return false;
-      }
-  
-      // check if password nmatch 
-      const passwordsMatch = await bcrypt.compare(password, user.password);
-  
-      return passwordsMatch;
+      const decodedToken = jwt.verify(token, "secret") as { userId: string };
+      const userId = decodedToken.userId;
+      return await this.repo.getUserById(userId);
     } catch (error) {
-      console.error("error authenticating user:", error);
+      console.error("Error decoding token or fetching user data:", error);
       throw error;
     }
   }
-    
-  
 }
 
