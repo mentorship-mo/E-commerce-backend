@@ -12,16 +12,20 @@ class userRepo implements userDAO {
   async createUser(user: User): Promise<void> {
     await this.model.create(user);
   }
-  // getUserByEmail(email: string): Promise<User | null> {
-  //   throw new Error("Method not implemented.");
-  // }
   // getUserById(id: string): Promise<User | null> {
   //   throw new Error("Method not implemented.");
   // }
   // getUsers(): Promise<User[]> {
   //   throw new Error("Method not implemented.");
   // }
+  async verifyEmail(verificationToken: string): Promise<any> {
+    return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
+  }
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.model.findOne({ email })
+  }
 }
+
 
 type userRepoType = userRepo;
 
