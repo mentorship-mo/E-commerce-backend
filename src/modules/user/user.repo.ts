@@ -24,6 +24,9 @@ class userRepo implements userDAO {
   async getUserByEmail(email: string): Promise<User | null> {
     return await this.model.findOne({ email })
   }
+  async getUserById(id: string): Promise<User | null> {
+    return await this.model.findById(id);
+  }
 }
 
 
