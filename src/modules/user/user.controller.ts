@@ -2,6 +2,7 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
+import { generateImageWithText } from "../../middleware/imgGenerator";
 
 class UserController {
   private router = express.Router();
@@ -39,6 +40,8 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
+      const imgName = generateImageWithText(req.body.name || "");
+      user.image = imgName;      
       await this.service.createUser(user);
       res.status(201).send({ message: "User created successfully" });
     } catch (err) {
@@ -73,14 +76,22 @@ class UserController {
 
     try {
       const userData = await this.service.getLoggedUserDataByToken(jwtCookie);
-       res.status(200).json({
-        id: userData?.id,
-        name: userData?.name,
-        email: userData?.email,
-        Image: userData?.image,
+      if (!userData) {
+        res.status(500).json({ error: "There is no users for this Token" });
+        return;
+      }
+      res.status(200).json({
+        data: {
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          Image: userData.image,
+        },
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
+      return;
     }
   };
 
