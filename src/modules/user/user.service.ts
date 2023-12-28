@@ -1,7 +1,7 @@
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verificationToken } from "../../middleware/send.email";
 
@@ -25,24 +25,24 @@ export class UserService {
     }
   }
 
-async authenticateUser(email: string, password: string): Promise<boolean> {
-  try {
-    const user = await this.repo.getUserByEmail(email);
+  async authenticateUser(email: string, password: string): Promise<boolean> {
+    try {
+      const user = await this.repo.getUserByEmail(email);
 
-    if (!user) {
-      // user not found with the provided email
-      return false;
+      if (!user) {
+        // user not found with the provided email
+        return false;
+      }
+
+      // check if password nmatch
+      const passwordsMatch = await bcrypt.compare(password, user.password);
+
+      return passwordsMatch;
+    } catch (error) {
+      console.error("error authenticating user:", error);
+      throw error;
     }
-
-    // check if password nmatch 
-    const passwordsMatch = await bcrypt.compare(password, user.password);
-
-    return passwordsMatch;
-  } catch (error) {
-    console.error("error authenticating user:", error);
-    throw error;
   }
-}
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
 
@@ -50,7 +50,7 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
     if (!user) {
       throw new Error("Failed to verify email");
     }
-    console.log('Decoded Token:', decoded);
+    console.log("Decoded Token:", decoded);
 
     user.verified = true;
     user.verificationToken = "";
@@ -64,15 +64,15 @@ async authenticateUser(email: string, password: string): Promise<boolean> {
     user.verificationToken = verificationToken(user.id);
     sendVerificationEmail(user.email, user.verificationToken);
   };
-  async getLoggedUserDataByToken(token: string): Promise<User | null> {
+
+  getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
     try {
-      const decodedToken = jwt.verify(token, "secret") as { userId: string };
-      const userId = decodedToken.userId;
-      return await this.repo.getUserById(userId);
+      const decoded = (await jwt.verify(token, "secret")) as { email: string };
+      const email = decoded.email;
+      return await this.repo.getUserByEmail(email);
     } catch (error) {
       console.error("Error decoding token or fetching user data:", error);
       throw error;
     }
-  }
+  };
 }
-
