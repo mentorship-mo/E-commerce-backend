@@ -31,7 +31,7 @@ export function generateImageWithText(name: string): string {
   // Specify the upload directory
   const uploadDir = path.join(__dirname, "../uploads/images");
 
-  // Create the directories recursively if they don't exist
+  // Create the directories if they don't exist
   fs.mkdirSync(uploadDir, { recursive: true });
 
   // Use the user name as the file name
