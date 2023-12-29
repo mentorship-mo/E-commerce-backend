@@ -75,4 +75,21 @@ export class UserService {
       throw error;
     }
   };
+  async enableFARequest ( email : string ) {
+ try {
+  const token = verificationToken(email);
+  await this.repo.getUserByEmail(email)
+  sendVerificationEmail(email,token )
+ } catch (error) {
+  console.log(error);
+ }
+  }
+   async enableFA ( token : string ) {
+    try {
+      // const decoded = await jwt.verify(token , 'secret')
+    } catch (error) {
+      console.log(error);
+    }
+   }
+
 }

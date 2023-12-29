@@ -9,10 +9,11 @@ apiKey.apiKey = process.env.SENDINBLUE_API_KEY
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
 
 const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
+
 sendSmtpEmail.templateId = 5
 
-export const sendVerificationEmail = (email: string ,verificationToken : string) => {
 
+export const sendVerificationEmail = (email: string ,verificationToken : string) => {
     sendSmtpEmail.subject = 'Verification Link'
     sendSmtpEmail.sender = {
         name: 'e-c',
@@ -35,6 +36,8 @@ export const sendVerificationEmail = (email: string ,verificationToken : string)
             console.error('Error sending verification email:', error)
         })
 }
+
+
 
 export function verificationToken(id : String){
     return jwt.sign({ id: id }, 'secret', { expiresIn: '2m' })
