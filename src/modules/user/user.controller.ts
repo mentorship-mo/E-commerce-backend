@@ -94,8 +94,12 @@ class UserController {
   }
   enableFA : RequestHandler = (req , res)=>{
     try {
-      // const token = req.query.token
-      // this.service.enableFA(token)
+      const token : string | undefined= req.query.token as string | undefined
+      if(token === undefined){
+        res.status(404).json({msg:"token is missing"})
+        return
+      }
+      this.service.enableFA(token)
       res.status(200).json({ message: "2FA enabled successfully" });
     } catch (error) {
       console.log(error);
