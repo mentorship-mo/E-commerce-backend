@@ -1,7 +1,7 @@
 import { userDAO } from "../../utils/DAO/userDAO";
 import { User } from "../../utils/types";
 import { Model } from "mongoose";
-import {UserModel} from "./user.model";
+import { UserModel } from "./user.model";
 
 class userRepo implements userDAO {
   private model: Model<User>;
@@ -9,20 +9,29 @@ class userRepo implements userDAO {
   constructor(model: Model<User>) {
     this.model = model;
   }
-  createUser(user: User): Promise<void> {
-    throw new Error("Method not implemented.");
+  async createUser(user: User): Promise<void> {
+    await this.model.create(user);
   }
-  getUserByEmail(email: string): Promise<User | null> {
-    throw new Error("Method not implemented.");
+  // getUserById(id: string): Promise<User | null> {
+  //   throw new Error("Method not implemented.");
+  // }
+  // getUsers(): Promise<User[]> {
+  //   throw new Error("Method not implemented.");
+  // }
+  async verifyEmail(verificationToken: string): Promise<any> {
+    return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
   }
-  getUserById(id: string): Promise<User | null> {
-    throw new Error("Method not implemented.");
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.model.findOne({ email })
   }
-  getUsers(): Promise<User[]> {
-    throw new Error("Method not implemented.");
+  async getUserById(id: string): Promise<User | null> {
+    return await this.model.findById(id);
   }
 }
 
-export type userRepoType = userRepo;
 
-export const db = new userRepo(UserModel);
+type userRepoType = userRepo;
+
+const db = new userRepo(UserModel);
+
+export { userRepoType, db };
