@@ -1,11 +1,10 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../modules/user/user.model";
-import { authenticatedRequest } from "../utils/types";
 
 class AuthenticationMiddleware {
   async authenticate(
-    req: authenticatedRequest,
+    req: any,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -21,16 +20,18 @@ class AuthenticationMiddleware {
         process.env.JWT_SECRET_KEY as string
       );
       // Check if user exists
-      const currentUser = await UserModel.findById(decoded.userId);
+      const currentUser = await UserModel.findOne({ email: decoded.email });
       if (!currentUser) {
         throw new Error("The user that belongs to this token no longer exists");
       }
       req.user = currentUser;
       next();
     } catch (error) {
-      res.status(401).json({ status: "fail", message: error });
+      res
+        .status(401)
+        .json({ status: "fail", message: " You Are not authenticated" });
     }
   }
+  ru;
 }
-
 export const authMiddleware = new AuthenticationMiddleware();
