@@ -13,10 +13,10 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-      userData.verificationToken = verificationToken(userData.id);
       await this.repo.createUser(userData);
+      userData.verificationToken = verificationToken(userData.id)
       if (!userData.verificationToken) {
-        throw new Error("Failed to generate verification token");
+        throw new Error("Failed to generate verification token")
       }
       sendVerificationEmail(userData.email, userData.verificationToken);
     } catch (error) {
@@ -44,17 +44,23 @@ export class UserService {
     }
   }
   verifyEmail = async (verificationToken: string): Promise<void> => {
-    const decoded = jwt.verify(verificationToken, "secret");
-
-    const user = await this.repo.verifyEmail(verificationToken);
-    if (!user) {
-      throw new Error("Failed to verify email");
+    const decoded = jwt.verify(verificationToken, "secret")
+    if (!decoded) {
+      throw new Error("login first")
     }
     console.log("Decoded Token:", decoded);
 
     user.verified = true;
     user.verificationToken = "";
     user.save();
+
+    const user = await this.repo.verifyEmail(verificationToken)
+    if (!user) {
+      throw new Error("Failed to verify email")
+    }
+    user.verified = true
+    user.verificationToken = ""
+    user.save()
   };
   ResendVerificationEmail = async (email: string): Promise<void> => {
     const user = await this.repo.getUserByEmail(email);
@@ -75,4 +81,24 @@ export class UserService {
       throw error;
     }
   };
+  async enableFARequest(email: string) {
+    try {
+      const token = verificationToken(email);
+      await this.repo.getUserByEmail(email)
+      sendVerificationEmail(email, token)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async enableFA(token: string) {
+    try {
+      const decoded = await jwt.verify(token , 'secret')
+      if (!decoded) {
+        throw new Error("login first")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 }

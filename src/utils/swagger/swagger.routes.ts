@@ -2,8 +2,8 @@
  * @swagger
  * /update:
  *   put:
- *     summary: update user data [email - password]
- *     description: updated user data after Authentication 
+ *     summary: Update user data [email - password]
+ *     description: Updated user data after Authentication
  *     tags:
  *       - User
  *     security:
@@ -30,6 +30,7 @@
  *       '400':
  *         description: Bad request
  */
+
 /**
  * @swagger
  * /resend-verification-email:
@@ -61,65 +62,6 @@
  *       '400':
  *         description: Bad request
  */
-
-/**
- * @swagger
- * /enable-2fa-request:
- *   post:
- *     summary: Request to enable Two-Factor Authentication (2FA)
- *     description: Request to enable 2FA for a user account
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: 2FA request sent successfully
- *       '400':
- *         description: Bad request
- */
-
-/**
- * @swagger
- * /enable-2fa:
- *   post:
- *     summary: Enable Two-Factor Authentication (2FA)
- *     description: Enable Two-Factor Authentication (2FA)
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
- *       - in: body
- *         name: Verification Code
- *         description: Verification code for enabling 2FA
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             code:
- *               type: string
- *               description: The verification code for enabling 2FA
- *     responses:
- *       '200':
- *         description: 2FA enabled successfully
- *       '400':
- *         description: Bad request or invalid verification code
- */
-
 /**
  * @swagger
  * /enable-2fa-request:
@@ -207,4 +149,80 @@
  *         description: Unauthorized - Invalid OTP or authentication failure
  *       '400':
  *         description: Bad request
+ */
+
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               oAuthToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
+
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: Sign in user
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User signed in successfully
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /refresh-token:
+ *   post:
+ *     summary: Refresh Access Token
+ *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: New access token generated successfully
+ *       '401':
+ *         description: Unauthorized - Invalid or expired refresh token
  */

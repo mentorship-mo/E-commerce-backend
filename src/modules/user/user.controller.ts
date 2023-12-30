@@ -46,6 +46,12 @@ class UserController {
           // Handle the case where the user is null
           res.status(500).send("Internal Server Error");
         }
+        const token = await jwt.sign({ email }, "secret", { expiresIn: "1h" });
+        res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
+        res.status(200).send({
+          message: "user authenticated successfully",
+          token,
+        });
       } else {
         res.status(401).send({ message: "Invalid email or password" });
       }
@@ -92,7 +98,7 @@ class UserController {
 
     try {
       const userData = await this.service.getLoggedUserDataByToken(jwtCookie);
-      res.status(200).json({
+       res.status(200).json({
         id: userData?.id,
         name: userData?.name,
         email: userData?.email,
@@ -102,6 +108,28 @@ class UserController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+  enableFARequest : RequestHandler = async (req , res ) =>{
+    try {
+      const {email} = req.body
+      await this.service.enableFARequest(email)
+      res.status(200).json({ message: "Email sent successfully" });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  enableFA : RequestHandler = (req , res)=>{
+    try {
+      const token : string | undefined= req.query.token as string | undefined
+      if(token === undefined){
+        res.status(404).json({msg:"token is missing"})
+        return
+      }
+      this.service.enableFA(token)
+      res.status(200).json({ message: "2FA enabled successfully" });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   initRoutes() {
     this.router.post("/", this.createUser);
@@ -116,6 +144,9 @@ class UserController {
         res.status(200).json({ message: "the auth middleware is working" });
       }
     );
+    this.router.post("/enable-2fa-Request",this.enableFARequest );
+    this.router.post("/enable-2fa",this.enableFA );
+
   }
   getRouter() {
     return this.router;
