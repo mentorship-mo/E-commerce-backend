@@ -1,13 +1,8 @@
-import { UserService } from "./user.service";
-import { userRepoType, db } from "./user.repo";
-import UserController from "./user.controller";
+import express , {Router} from 'express'
 
-const userRepository: userRepoType = db;
-const userService = new UserService(userRepository);
+const router : Router = express.Router()
 
-const userController = new UserController(userService);
+router.post('/signup', )
+router.post('/signIn' )
 
-userController.initRoutes();
-
-
-export { userController as userRoutes };
+export {router as  userRoutes }
