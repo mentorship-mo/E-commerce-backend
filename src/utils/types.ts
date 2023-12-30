@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   password: string;
@@ -8,4 +9,8 @@ export interface User {
   oAuthToken?: "google" | "facebook";
   otp?: string;
   image: string;
+}
+export interface authenticatedRequest extends Request {
+  [x: string]: any;
+  user?:User;
 }
