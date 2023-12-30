@@ -3,6 +3,7 @@ import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import { userRepoType } from "./user.repo";
+import { generateImageWithText } from "../../utils/image.generator";
 
 class UserController {
   private router = express.Router();
@@ -55,9 +56,13 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
+      const imgName = await generateImageWithText(req.body.name || "");
+      user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({ message: "User created successfully" });
     } catch (err) {
+      console.log(err);
+
       res.status(500).send("Internal Server Error");
     }
   };
