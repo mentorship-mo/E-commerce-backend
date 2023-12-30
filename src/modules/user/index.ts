@@ -5,9 +5,8 @@ import UserController from "./user.controller";
 const userRepository: userRepoType = db;
 const userService = new UserService(userRepository);
 
-const userController = new UserController(userService);
+const userController = new UserController(userService, userRepository);
 
 userController.initRoutes();
-
 
 export { userController as userRoutes };

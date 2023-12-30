@@ -9,6 +9,7 @@ export interface User {
   oAuthToken?: "google" | "facebook";
   otp?: string;
   image: string;
+  is2FaEnabled : boolean
 }
 export interface authenticatedRequest extends Request {
   [x: string]: any;
