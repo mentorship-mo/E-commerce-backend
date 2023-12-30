@@ -83,6 +83,28 @@ class UserController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+  enableFARequest : RequestHandler = async (req , res ) =>{
+    try {
+      const {email} = req.body
+      await this.service.enableFARequest(email)
+      res.status(200).json({ message: "Email sent successfully" });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  enableFA : RequestHandler = (req , res)=>{
+    try {
+      const token : string | undefined= req.query.token as string | undefined
+      if(token === undefined){
+        res.status(404).json({msg:"token is missing"})
+        return
+      }
+      this.service.enableFA(token)
+      res.status(200).json({ message: "2FA enabled successfully" });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   initRoutes() {
     this.router.post("/", this.createUser);
@@ -90,6 +112,9 @@ class UserController {
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/get-me", this.getUserDataByToken);
+    this.router.post("/enable-2fa-Request",this.enableFARequest );
+    this.router.post("/enable-2fa",this.enableFA );
+
   }
   getRouter() {
     return this.router;
