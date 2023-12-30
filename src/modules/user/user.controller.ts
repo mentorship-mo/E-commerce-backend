@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { userRepoType } from "./user.repo";
 import { generateImageWithText } from "../../utils/image.generator";
 
+
 class UserController {
   private router = express.Router();
   private readonly service: UserService;
