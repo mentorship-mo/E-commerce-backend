@@ -2,14 +2,18 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
+import { userRepoType } from "./user.repo";
+import { authMiddleware } from "../../middleware/Authentication";
+
 
 class UserController {
   private router = express.Router();
-
   private readonly service: UserService;
-
-  constructor(service) {
+  private repo: userRepoType;
+ 
+  constructor(service, repo) {
     this.service = service;
+    this.repo = repo;
   }
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
     try {
@@ -22,12 +26,26 @@ class UserController {
       );
 
       if (isAuthenticated) {
-        const token = await jwt.sign({ email }, "secret", { expiresIn: "1h" });
-        res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
-        res.status(200).send({
-          message: "user authenticated successfully",
-          token,
-        });
+        const user: User | null = await this.repo.getUserByEmail(email);
+
+        if (user) {
+          const token = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET_KEY as string,
+            {
+              expiresIn: process.env.JWT_EXPIRATION_TIME as string,
+            }
+          );
+          console.log(user);
+
+          res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
+          res.status(200).send({
+            message: "User authenticated successfully",
+          });
+        } else {
+          // Handle the case where the user is null
+          res.status(500).send("Internal Server Error");
+        }
       } else {
         res.status(401).send({ message: "Invalid email or password" });
       }
@@ -36,6 +54,7 @@ class UserController {
       res.status(500).send("Internal Server Error");
     }
   };
+
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
@@ -73,7 +92,7 @@ class UserController {
 
     try {
       const userData = await this.service.getLoggedUserDataByToken(jwtCookie);
-       res.status(200).json({
+      res.status(200).json({
         id: userData?.id,
         name: userData?.name,
         email: userData?.email,
@@ -90,6 +109,13 @@ class UserController {
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/get-me", this.getUserDataByToken);
+    this.router.get(
+      "/info",
+      authMiddleware.authenticate,
+      (req, res) => {
+        res.status(200).json({ message: "the auth middleware is working" });
+      }
+    );
   }
   getRouter() {
     return this.router;
