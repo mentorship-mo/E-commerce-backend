@@ -25,19 +25,22 @@ export class UserService {
     }
   }
 
-  async authenticateUser(email: string, password: string): Promise<boolean> {
+  async authenticateUser(email: string, password: string): Promise<User> {
     try {
       const user = await this.repo.getUserByEmail(email);
 
       if (!user) {
         // user not found with the provided email
-        return false;
+        throw new Error("invalid credentials");
       }
 
       // check if password nmatch
       const passwordsMatch = await bcrypt.compare(password, user.password);
 
-      return passwordsMatch;
+      if (!passwordsMatch) {
+        throw new Error("invalid credentials");
+      }
+      return user;
     } catch (error) {
       console.error("error authenticating user:", error);
       throw error;

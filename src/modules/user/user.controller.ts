@@ -9,7 +9,7 @@ class UserController {
 
   private readonly service: UserService;
 
-  constructor(service) {
+  constructor(service: UserService) {
     this.service = service;
   }
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
@@ -23,29 +23,40 @@ class UserController {
       );
 
       if (isAuthenticated) {
-        const token = await jwt.sign({ email }, "secret", { expiresIn: "1h" });
-        res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
+        const accessToken = await jwt.sign({ email }, "secret", {
+          expiresIn: "1h",
+        });
+        const refreshToken: string = await jwt.sign(
+          { _id: isAuthenticated.id },
+          "refreshTokenSecret",
+          {
+            expiresIn: "30d",
+          }
+        );
+        res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600000 });
+        res.cookie("jwt", refreshToken, { httpOnly: true, maxAge: 2592000000 });
         res.status(200).send({
           message: "user authenticated successfully",
-          token,
+          accessToken,
+          refreshToken,
         });
       } else {
         res.status(401).send({ message: "Invalid email or password" });
       }
     } catch (err) {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
+      // console.log(err);
+      res.status(500).send({ err });
     }
   };
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
       const imgName = generateImageWithText(req.body.name || "");
-      user.image = imgName;      
+      user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({ message: "User created successfully" });
     } catch (err) {
-      res.status(500).send("Internal Server Error");
+      res.status(500).send({ error: err });
     }
   };
   verifyEmail: RequestHandler = async (req, res, next): Promise<void> => {
@@ -54,7 +65,7 @@ class UserController {
       await this.service.verifyEmail(verificationToken);
       res.status(201).json({ message: "Email verified successfully" });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       res.status(500).json("Internal Server Error");
     }
   };
@@ -89,7 +100,7 @@ class UserController {
         },
       });
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
       return;
     }
