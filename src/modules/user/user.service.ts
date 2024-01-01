@@ -75,24 +75,54 @@ export class UserService {
       throw error;
     }
   };
-  async enableFARequest(email: string) {
+
+  async requestEnable2FAByEmail(email: string): Promise<void> {
     try {
-      const token = verificationToken(email);
-      await this.repo.getUserByEmail(email)
-      sendVerificationEmail(email, token)
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  async enableFA(token: string) {
-    try {
-      const decoded = await jwt.verify(token , 'secret')
-      if (!decoded) {
-        throw new Error("login first")
+      const user = await this.repo.getUserByEmail(email);
+      if (!user) {
+        throw new Error('User not found');
       }
+      const token = jwt.sign({ userId: user.id }, "2FA_SECRET_KEY", { expiresIn: "1h" });
+      // This is a placeholder for sending the token via email
+      await this.send2FATokenByEmail(email, token);
     } catch (error) {
-      console.log(error);
+      console.error('Error requesting enablement of 2FA:', error);
+      throw error;
     }
   }
 
+  async verifyEnable2FAToken(email: string, token: string): Promise<boolean> {
+    try {
+      const user = await this.repo.getUserByEmail(email);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const decodedToken = jwt.verify(token, "2FA_SECRET_KEY") as { userId: string };
+
+      if (!decodedToken || decodedToken.userId !== user.id) {
+        return false; // Token is invalid or doesn't match the user
+      }
+
+      await this.repo.enable2FAForUser(email);
+      return true; // Token is valid, and 2FA enabled
+
+    } catch (error) {
+      console.error('Error verifying enable 2FA token:', error);
+      throw error;
+    }
+  }
+
+  // Placeholder for sending the 2FA token via email
+  private async send2FATokenByEmail(email: string, token: string): Promise<void> {
+    // Implement your logic to send the token to the user's email
+    // Use your email service or library to send the token
+    console.log(`Sending 2FA token ${token} to ${email}`);
+  }
+
+
+
+
 }
+
