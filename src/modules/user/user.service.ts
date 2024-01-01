@@ -4,6 +4,7 @@ import { userRepoType } from "./user.repo";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verificationToken } from "../../middleware/send.email";
+import { Tokens } from "../../utils/types";
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -68,14 +69,36 @@ export class UserService {
     sendVerificationEmail(user.email, user.verificationToken);
   };
 
-  getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
+  getLoggedUserDataByToken = async (
+    token: string
+  ): Promise<User | null | void> => {
     try {
-      const decoded = (await jwt.verify(token, "secret")) as { email: string };
-      const email = decoded.email;
-      return await this.repo.getUserByEmail(email);
+      const decoded = (await jwt.verify(token, "secret")) as { _id: string };
+      const id = decoded._id;
+      return await this.repo.getUserById(id);
     } catch (error) {
-      console.error("Error decoding token or fetching user data:", error);
-      throw error;
+      // console.error("Error decoding token or fetching user data:", error);
+      // throw error;
+    }
+  };
+
+  getDataByRefreshToken = async (token: string): Promise<Tokens | null> => {
+    try {
+      const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
+        _id: string;
+      };
+      const id = decoded._id;
+      const accessToken = await jwt.sign({ id }, "secret", { expiresIn: "1h" });
+      const refreshToken = await jwt.sign({ id }, "refreshTokenSecret", {
+        expiresIn: "30d",
+      });
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
   };
 }

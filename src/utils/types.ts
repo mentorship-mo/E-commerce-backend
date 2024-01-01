@@ -9,3 +9,9 @@ export interface User {
   otp?: string;
   image: string;
 }
+
+
+export interface Tokens {
+  accessToken: string,
+  refreshToken: string
+}

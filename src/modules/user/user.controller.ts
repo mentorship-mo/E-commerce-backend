@@ -1,6 +1,6 @@
-import express, { RequestHandler } from "express";
+import express, { RequestHandler, Request, Response } from "express";
 import { UserService } from "./user.service";
-import { User } from "../../utils/types";
+import { Tokens, User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import { generateImageWithText } from "../../middleware/imgGenerator";
 
@@ -23,9 +23,13 @@ class UserController {
       );
 
       if (isAuthenticated) {
-        const accessToken = await jwt.sign({ email }, "secret", {
-          expiresIn: "1h",
-        });
+        const accessToken = await jwt.sign(
+          { _id: isAuthenticated.id },
+          "secret",
+          {
+            expiresIn: "1h",
+          }
+        );
         const refreshToken: string = await jwt.sign(
           { _id: isAuthenticated.id },
           "refreshTokenSecret",
@@ -33,8 +37,14 @@ class UserController {
             expiresIn: "30d",
           }
         );
-        res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600000 });
-        res.cookie("jwt", refreshToken, { httpOnly: true, maxAge: 2592000000 });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 2592000000,
+        });
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          maxAge: 3600000,
+        });
         res.status(200).send({
           message: "user authenticated successfully",
           accessToken,
@@ -78,8 +88,11 @@ class UserController {
       res.status(500).json("Internal Server Error");
     }
   };
-  getUserDataByToken: RequestHandler = async (req, res): Promise<void> => {
-    const jwtCookie = req.cookies.jwt as string | undefined;
+  getUserDataByToken: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const jwtCookie = req.cookies.accessToken as string | undefined;
     if (!jwtCookie) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -105,13 +118,42 @@ class UserController {
       return;
     }
   };
+  getUserDataByRefreshToken: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const jwtCookie = req.cookies.refreshToken as string | undefined;
+    if (!jwtCookie) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    try {
+      const tokens: Tokens | null = await this.service.getDataByRefreshToken(
+        jwtCookie
+      );
+      if (!tokens) {
+        res.status(500).json({ error: "There is no users for this Token" });
+        return;
+      }
+      res.status(200).json({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      });
+    } catch (error) {
+      // console.error(error);
+      res.status(500).json({ error });
+      return;
+    }
+  };
 
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
-    this.router.get("/get-me", this.getUserDataByToken);
+    this.router.get("/me", this.getUserDataByToken);
+    this.router.get("/refreshToken", this.getUserDataByRefreshToken);
   }
   getRouter() {
     return this.router;
