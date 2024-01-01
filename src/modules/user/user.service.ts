@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
@@ -5,6 +6,15 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verificationToken } from "../../middleware/send.email";
 import { Tokens } from "../../utils/types";
+=======
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+import { sendVerificationEmail } from "../../middleware/send.email";
+import { User } from "../../utils/types";
+import { userRepoType } from "./user.repo";
+import { verificationToken } from "../../middleware/send.email";
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -14,8 +24,13 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
+<<<<<<< HEAD
       userData.verificationToken = verificationToken(userData.id);
       await this.repo.createUser(userData);
+=======
+      await this.repo.createUser(userData);
+      userData.verificationToken = verificationToken(userData.id);
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
@@ -26,22 +41,34 @@ export class UserService {
     }
   }
 
+<<<<<<< HEAD
   async authenticateUser(email: string, password: string): Promise<User> {
+=======
+  async authenticateUser(email: string, password: string): Promise<boolean> {
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
     try {
       const user = await this.repo.getUserByEmail(email);
 
       if (!user) {
         // user not found with the provided email
+<<<<<<< HEAD
         throw new Error("invalid credentials");
+=======
+        return false;
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
       }
 
       // check if password nmatch
       const passwordsMatch = await bcrypt.compare(password, user.password);
 
+<<<<<<< HEAD
       if (!passwordsMatch) {
         throw new Error("invalid credentials");
       }
       return user;
+=======
+      return passwordsMatch;
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
     } catch (error) {
       console.error("error authenticating user:", error);
       throw error;
@@ -49,13 +76,27 @@ export class UserService {
   }
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
+<<<<<<< HEAD
+=======
+    if (!decoded) {
+      throw new Error("login first");
+    }
+    console.log("Decoded Token:", decoded);
+
+    // user.verified = true;
+    // user.verificationToken = "";
+    // user.save();
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
 
     const user = await this.repo.verifyEmail(verificationToken);
     if (!user) {
       throw new Error("Failed to verify email");
     }
+<<<<<<< HEAD
     console.log("Decoded Token:", decoded);
 
+=======
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
     user.verified = true;
     user.verificationToken = "";
     user.save();
@@ -69,6 +110,7 @@ export class UserService {
     sendVerificationEmail(user.email, user.verificationToken);
   };
 
+<<<<<<< HEAD
   getLoggedUserDataByToken = async (
     token: string
   ): Promise<User | null | void> => {
@@ -101,4 +143,40 @@ export class UserService {
       throw err;
     }
   };
+=======
+  getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET_KEY as string
+      ) as {
+        email: string;
+      };
+      const email = decoded.email;
+      return await this.repo.getUserByEmail(email);
+    } catch (error) {
+      console.error("This is not a valid token ", error);
+      throw error;
+    }
+  };
+  async enableFARequest(email: string) {
+    try {
+      const token = verificationToken(email);
+      await this.repo.getUserByEmail(email);
+      sendVerificationEmail(email, token);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async enableFA(token: string) {
+    try {
+      const decoded = await jwt.verify(token, "secret");
+      if (!decoded) {
+        throw new Error("login first");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
 }

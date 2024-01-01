@@ -20,6 +20,10 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "canvas": "^2.11.2",
+<<<<<<< HEAD
+=======
+    "cloudinary": "^1.41.1",
+>>>>>>> f76e9c1a886e3f25bc8a1e0fe3ca23c27f687cac
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
