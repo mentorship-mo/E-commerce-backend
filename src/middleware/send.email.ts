@@ -37,8 +37,9 @@ export const sendVerificationEmail = (email: string ,verificationToken : string)
         })
 }
 
-
-
 export function verificationToken(id : String){
     return jwt.sign({ id: id }, 'secret', { expiresIn: '2m' })
-  }
+}
+
+
+  

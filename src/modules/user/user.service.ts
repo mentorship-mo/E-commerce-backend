@@ -85,6 +85,7 @@ export class UserService {
       const token = jwt.sign({ userId: user.id }, "2FA_SECRET_KEY", { expiresIn: "1h" });
       // This is a placeholder for sending the token via email
       await this.send2FATokenByEmail(email, token);
+
     } catch (error) {
       console.error('Error requesting enablement of 2FA:', error);
       throw error;
@@ -114,15 +115,12 @@ export class UserService {
     }
   }
 
-  // Placeholder for sending the 2FA token via email
+  // handle sending the 2FA token via email
   private async send2FATokenByEmail(email: string, token: string): Promise<void> {
-    // Implement your logic to send the token to the user's email
-    // Use your email service or library to send the token
+    //  logic to send the token to the user's email
+    // using email service or package to send the token
     console.log(`Sending 2FA token ${token} to ${email}`);
   }
-
-
-
 
 }
 
