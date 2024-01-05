@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
+
     is2FaEnabled : {
       type: Boolean,
       default: false
@@ -35,7 +36,6 @@ const UserSchema = new Schema<User>(
     image: String,
   },
   { timestamps: true },
-  
 
 );
 

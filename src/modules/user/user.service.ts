@@ -1,8 +1,10 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 import { verificationToken } from "../../middleware/send.email";
 import { Profile } from "passport";
 
@@ -46,6 +48,7 @@ export class UserService {
   }
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
+
     if (!decoded) {
       throw new Error("login first");
     }
@@ -74,19 +77,30 @@ export class UserService {
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
     try {
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET_KEY as string
-      ) as {
-        email: string;
-      };
+      const decoded = (await jwt.verify(token, "secret")) as { email: string };
       const email = decoded.email;
       return await this.repo.getUserByEmail(email);
     } catch (error) {
-      console.error("This is not a valid token ", error);
+      console.error("Error decoding token or fetching user data:", error);
       throw error;
     }
   };
+  getAccessTokenByRefreshToken = async (token: string) => {
+    try {
+      const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
+        email: string;
+      };
+      const email = decoded.email;
+      const accessToken = await jwt.sign({ email }, "secret", {
+        expiresIn: "1h",
+      });
+      return accessToken;
+    } catch (error) {
+      console.error("Error decoding token or fetching user data:", error);
+      throw error;
+    }
+  };
+
   async enableFARequest(email: string) {
     try {
       const token = verificationToken(email);
