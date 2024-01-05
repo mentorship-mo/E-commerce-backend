@@ -88,10 +88,10 @@ class UserController {
     try {
       const { email } = req.body;
   
-      const token = await this.service.requestEnable2FAByEmail(email);
+      const twoFactorToken = await this.service.requestEnable2FAByEmail(email);
       // Now you have access to the token, and you can use it as needed
   
-      return res.status(200).json({ message: 'Request to enable 2FA sent.', token });
+      return res.status(200).json({ message: 'Request to enable 2FA sent.', twoFactorToken });
     } catch (error) {
       console.error('Error requesting enablement of 2FA:', error);
       return res.status(500).json({ error: 'Internal server error.' });
@@ -100,8 +100,8 @@ class UserController {
 
   enable2FA: RequestHandler = async (req, res) => {
     try {
-      const { email, token } = req.body;
-      const is2FAEnabled = await this.service.verifyEnable2FAToken(email, token);
+      const { email, twoFactorToken } = req.body;
+      const is2FAEnabled = await this.service.verifyEnable2FAToken(email, twoFactorToken);
       
       if (is2FAEnabled) {
         return res.status(200).json({ message: '2FA enabled successfully.' });
