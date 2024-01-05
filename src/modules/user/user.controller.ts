@@ -83,10 +83,26 @@ class UserController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  requestEnable2FA: RequestHandler = async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+      const token = await this.service.requestEnable2FAByEmail(email);
+      // Now you have access to the token, and you can use it as needed
+  
+      return res.status(200).json({ message: 'Request to enable 2FA sent.', token });
+    } catch (error) {
+      console.error('Error requesting enablement of 2FA:', error);
+      return res.status(500).json({ error: 'Internal server error.' });
+    }
+  };
+
   enable2FA: RequestHandler = async (req, res) => {
     try {
       const { email, token } = req.body;
       const is2FAEnabled = await this.service.verifyEnable2FAToken(email, token);
+      
       if (is2FAEnabled) {
         return res.status(200).json({ message: '2FA enabled successfully.' });
       } else {
@@ -98,18 +114,7 @@ class UserController {
     }
   };
   
-  requestEnable2FA: RequestHandler = async (req, res) => {
-    try {
-      const { email } = req.body;
-  
-      await this.service.requestEnable2FAByEmail(email);
-  
-      return res.status(200).json({ message: 'Request to enable 2FA sent.' });
-    } catch (error) {
-      console.error('Error requesting enablement of 2FA:', error);
-      return res.status(500).json({ error: 'Internal server error.' });
-    }
-  };
+
 
   initRoutes() {
     this.router.post("/", this.createUser);
