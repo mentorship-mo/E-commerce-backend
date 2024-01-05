@@ -23,11 +23,24 @@ class UserController {
       );
 
       if (isAuthenticated) {
-        const token = await jwt.sign({ email }, "secret", { expiresIn: "1h" });
-        res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
+        const accessToken = await jwt.sign({ email }, "secret", {
+          expiresIn: "1h",
+        });
+        const refreshToken = await jwt.sign({ email }, "refreshTokenSecret", {
+          expiresIn: "30d",
+        });
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          maxAge: 3600000,
+        });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 2592000000,
+        });
         res.status(200).send({
           message: "user authenticated successfully",
-          token,
+          accessToken,
+          refreshToken,
         });
       } else {
         res.status(401).send({ message: "Invalid email or password" });
@@ -41,9 +54,11 @@ class UserController {
     try {
       const user: User = req.body;
       const imgName = generateImageWithText(req.body.name || "");
-      user.image = imgName;      
+      user.image = imgName;
       await this.service.createUser(user);
-      res.status(201).send({ message: "User created successfully" });
+      res.status(201).send({
+        message: "User created successfully, check your email to verify",
+      });
     } catch (err) {
       res.status(500).send("Internal Server Error");
     }
@@ -68,7 +83,7 @@ class UserController {
     }
   };
   getUserDataByToken: RequestHandler = async (req, res): Promise<void> => {
-    const jwtCookie = req.cookies.jwt as string | undefined;
+    const jwtCookie = req.cookies.accessToken as string | undefined;
     if (!jwtCookie) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -95,12 +110,36 @@ class UserController {
     }
   };
 
+  getRefreshToken: RequestHandler = async (req, res): Promise<void> => {
+    const jwtCookie = req.cookies.refreshToken as string | undefined;
+    if (!jwtCookie) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    try {
+      const accessToken = await this.service.getAccessTokenByRefreshToken(
+        jwtCookie
+      );
+      if (!accessToken) {
+        res.status(500).json({ error: "There is no users for this Token" });
+        return;
+      }
+
+      res.send({ accessToken });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+  };
+
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/get-me", this.getUserDataByToken);
+    this.router.get("/refresh-token", this.getRefreshToken);
   }
   getRouter() {
     return this.router;

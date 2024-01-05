@@ -75,4 +75,19 @@ export class UserService {
       throw error;
     }
   };
+  getAccessTokenByRefreshToken = async (token: string) => {
+    try {
+      const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
+        email: string;
+      };
+      const email = decoded.email;
+      const accessToken = await jwt.sign({ email }, "secret", {
+        expiresIn: "1h",
+      });
+      return accessToken;
+    } catch (error) {
+      console.error("Error decoding token or fetching user data:", error);
+      throw error;
+    }
+  };
 }
