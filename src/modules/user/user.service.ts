@@ -99,7 +99,7 @@ export class UserService {
       if (!user) {
         throw new Error('User not found');
       }
-
+ 
       const decodedToken = jwt.verify(token, "2FA_SECRET_KEY") as { userId: string };
 
       if (!decodedToken || decodedToken.userId !== user.id) {

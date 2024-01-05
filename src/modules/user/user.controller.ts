@@ -86,9 +86,7 @@ class UserController {
   enable2FA: RequestHandler = async (req, res) => {
     try {
       const { email, token } = req.body;
-  
       const is2FAEnabled = await this.service.verifyEnable2FAToken(email, token);
-  
       if (is2FAEnabled) {
         return res.status(200).json({ message: '2FA enabled successfully.' });
       } else {
