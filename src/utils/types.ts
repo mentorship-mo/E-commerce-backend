@@ -8,4 +8,5 @@ export interface User {
   oAuthToken?: "google" | "facebook";
   otp?: string;
   image: string;
+  is2FaEnabled : boolean
 }

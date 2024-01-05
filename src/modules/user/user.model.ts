@@ -7,6 +7,11 @@ import bcrypt from "bcryptjs";
 const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
+
+    is2FaEnabled : {
+      type: Boolean,
+      default: false
+    },
     email: {
       type: String,
       required: true,
@@ -29,7 +34,7 @@ const UserSchema = new Schema<User>(
     otp: { type: String, default: "" },
     image: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 UserSchema.pre("save", async function (next) {

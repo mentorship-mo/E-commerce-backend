@@ -3,6 +3,7 @@ import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 import { verificationToken } from "../../middleware/send.email";
 
 export class UserService {
@@ -13,8 +14,8 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-      userData.verificationToken = verificationToken(userData.id);
       await this.repo.createUser(userData);
+      userData.verificationToken = verificationToken(userData.id);
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
@@ -46,12 +47,19 @@ export class UserService {
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
 
+    if (!decoded) {
+      throw new Error("login first");
+    }
+    console.log("Decoded Token:", decoded);
+
+    // user.verified = true;
+    // user.verificationToken = "";
+    // user.save();
+
     const user = await this.repo.verifyEmail(verificationToken);
     if (!user) {
       throw new Error("Failed to verify email");
     }
-    console.log("Decoded Token:", decoded);
-
     user.verified = true;
     user.verificationToken = "";
     user.save();
@@ -75,4 +83,39 @@ export class UserService {
       throw error;
     }
   };
+  getAccessTokenByRefreshToken = async (token: string) => {
+    try {
+      const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
+        email: string;
+      };
+      const email = decoded.email;
+      const accessToken = await jwt.sign({ email }, "secret", {
+        expiresIn: "1h",
+      });
+      return accessToken;
+    } catch (error) {
+      console.error("Error decoding token or fetching user data:", error);
+      throw error;
+    }
+  };
+
+  async enableFARequest(email: string) {
+    try {
+      const token = verificationToken(email);
+      await this.repo.getUserByEmail(email);
+      sendVerificationEmail(email, token);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async enableFA(token: string) {
+    try {
+      const decoded = await jwt.verify(token, "secret");
+      if (!decoded) {
+        throw new Error("login first");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
