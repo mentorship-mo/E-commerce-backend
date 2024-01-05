@@ -2,13 +2,12 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
-import { userRepoType } from "./user.repo";
-import { generateImageWithText } from "../../utils/image.generator";
+// import { generateImageWithText } from "../../utils/image.generator";
 
 class UserController {
   private router = express.Router();
   private readonly service: UserService;
-  constructor(service) {
+  constructor(service: UserService) {
     this.service = service;
   }
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
@@ -20,10 +19,10 @@ class UserController {
       );
 
       if (isAuthenticated) {
-        const accessToken = await jwt.sign({ email }, process.env.JWT_SECRET_KEY, {
+        const accessToken = await jwt.sign({ email }, "secret", {
           expiresIn: "1h",
         });
-        const refreshToken = await jwt.sign({ email }, process.env.JWT_REFRESH_TOKEN, {
+        const refreshToken = await jwt.sign({ email }, "refreshTokenSecret", {
           expiresIn: "30d",
         });
         res.cookie("accessToken", accessToken, {
@@ -39,8 +38,6 @@ class UserController {
           accessToken,
           refreshToken,
         });
-
-
       } else {
         res.status(401).send({ message: "Invalid email or password" });
       }
@@ -52,8 +49,8 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
-      const imgName = generateImageWithText(req.body.name || "");
-      user.image = imgName;
+      // const imgName = generateImageWithText(req.body.name || "");
+      // user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({
         message: "User created successfully, check your email to verify",
@@ -130,11 +127,10 @@ class UserController {
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal Server Error" });
-      return;      
+      return;
+    }
+  };
 
-      
-   
-  
   enableFARequest: RequestHandler = async (req, res) => {
     try {
       const { email } = req.body;
