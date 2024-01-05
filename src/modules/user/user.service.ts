@@ -14,7 +14,6 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-
       await this.repo.createUser(userData);
       userData.verificationToken = verificationToken(userData.id);
       if (!userData.verificationToken) {
@@ -76,7 +75,7 @@ export class UserService {
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
     try {
-      const decoded = (await jwt.verify(token,process.env.JWT_SECRET_KEY )) as { email: string };
+      const decoded = (await jwt.verify(token, "secret")) as { email: string };
       const email = decoded.email;
       return await this.repo.getUserByEmail(email);
     } catch (error) {
