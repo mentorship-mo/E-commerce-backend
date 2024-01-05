@@ -8,42 +8,39 @@ import { generateImageWithText } from "../../utils/image.generator";
 class UserController {
   private router = express.Router();
   private readonly service: UserService;
-  private repo: userRepoType;
-
-  constructor(service, repo) {
+  constructor(service) {
     this.service = service;
-    this.repo = repo;
   }
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
-
       const isAuthenticated = await this.service.authenticateUser(
         email,
         password
       );
 
       if (isAuthenticated) {
-        const user: User | null = await this.repo.getUserByEmail(email);
+        const accessToken = await jwt.sign({ email }, process.env.JWT_SECRET_KEY, {
+          expiresIn: "1h",
+        });
+        const refreshToken = await jwt.sign({ email }, process.env.JWT_REFRESH_TOKEN, {
+          expiresIn: "30d",
+        });
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          maxAge: 3600000,
+        });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 2592000000,
+        });
+        res.status(200).send({
+          message: "user authenticated successfully",
+          accessToken,
+          refreshToken,
+        });
 
-        if (user) {
-          const token = jwt.sign(
-            { email },
-            process.env.JWT_SECRET_KEY as string,
-            {
-              expiresIn: process.env.JWT_EXPIRATION_TIME as string,
-            }
-          );
 
-          res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
-
-          res.status(200).send({
-            message: "User authenticated successfully",
-          });
-        } else {
-          // Handle the case where the user is null
-          res.status(500).send("Internal Server Error");
-        }
       } else {
         res.status(401).send({ message: "Invalid email or password" });
       }
@@ -52,17 +49,16 @@ class UserController {
       res.status(500).send("Internal Server Error");
     }
   };
-
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
-      const imgName = await generateImageWithText(req.body.name || "");
+      const imgName = generateImageWithText(req.body.name || "");
       user.image = imgName;
       await this.service.createUser(user);
-      res.status(201).send({ message: "User created successfully" });
+      res.status(201).send({
+        message: "User created successfully, check your email to verify",
+      });
     } catch (err) {
-      console.log(err);
-
       res.status(500).send("Internal Server Error");
     }
   };
@@ -86,26 +82,59 @@ class UserController {
     }
   };
   getUserDataByToken: RequestHandler = async (req, res): Promise<void> => {
-    const jwtCookie = req.cookies.jwt as string | undefined;
+    const jwtCookie = req.cookies.accessToken as string | undefined;
     if (!jwtCookie) {
-      res.status(401).json({ error: "You are not logged in " });
+      res.status(401).json({ error: "Unauthorized" });
+
       return;
     }
 
     try {
       const userData = await this.service.getLoggedUserDataByToken(jwtCookie);
-      // console.log(userData);
 
+      if (!userData) {
+        res.status(500).json({ error: "There is no users for this Token" });
+        return;
+      }
       res.status(200).json({
-        id: userData?.id,
-        name: userData?.name,
-        email: userData?.email,
-        Image: userData?.image,
+        data: {
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          Image: userData.image,
+        },
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
+      return;
     }
   };
+
+  getRefreshToken: RequestHandler = async (req, res): Promise<void> => {
+    const jwtCookie = req.cookies.refreshToken as string | undefined;
+    if (!jwtCookie) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    try {
+      const accessToken = await this.service.getAccessTokenByRefreshToken(
+        jwtCookie
+      );
+      if (!accessToken) {
+        res.status(500).json({ error: "There is no users for this Token" });
+        return;
+      }
+
+      res.send({ accessToken });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;      
+
+      
+   
+  
   enableFARequest: RequestHandler = async (req, res) => {
     try {
       const { email } = req.body;
@@ -134,6 +163,7 @@ class UserController {
     this.router.post("/signin", this.authSignIn);
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);
     this.router.post("/enable-2fa", this.enableFA);
