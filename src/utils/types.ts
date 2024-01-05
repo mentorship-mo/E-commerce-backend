@@ -9,4 +9,5 @@ export interface User {
   otp?: string;
   image: string;
   is2FaEnabled : boolean
+  googleID : string
 }

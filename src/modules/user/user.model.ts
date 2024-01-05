@@ -11,6 +11,7 @@ const UserSchema = new Schema<User>(
       type: Boolean,
       default: false
     },
+    googleID: String ,
     email: {
       type: String,
       required: true,
@@ -29,11 +30,12 @@ const UserSchema = new Schema<User>(
       default: false,
     },
     verificationToken: { type: String, default: "" },
-    oAuthToken: { type: String, enum: ["google", "facebook"] },
+    // oAuthToken: { type: String, enum: ["google", "facebook"] },
     otp: { type: String, default: "" },
     image: String,
   },
   { timestamps: true },
+  
 
 );
 

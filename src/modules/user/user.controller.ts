@@ -4,7 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import { userRepoType } from "./user.repo";
 import { generateImageWithText } from "../../utils/image.generator";
-
+import passport from "passport";
 class UserController {
   private router = express.Router();
   private readonly service: UserService;
@@ -128,6 +128,18 @@ class UserController {
       console.log(error);
     }
   };
+  googleRedirect : RequestHandler =  (req, res, next) => {
+    passport.authenticate('google',{ failureRedirect: '/login' }, (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err });
+        }
+        if (!user) {
+            return res.status(401).json({ error: 'Authentication failed' });
+        }
+        // You can handle the successful authentication here, e.g., redirect or respond with a token.
+        res.status(200).json({ user });
+    })(req, res, next);
+}
 
   initRoutes() {
     this.router.post("/", this.createUser);
@@ -137,6 +149,11 @@ class UserController {
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);
     this.router.post("/enable-2fa", this.enableFA);
+    this.router.get('/google' , passport.authenticate('google',{
+      scope:['profile', 'email'],
+      session: false
+  }))
+  this.router.get('/google/redirect', this.googleRedirect)
   }
   getRouter() {
     return this.router;

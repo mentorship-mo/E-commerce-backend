@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
 import { verificationToken } from "../../middleware/send.email";
+import { Profile } from "passport";
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -101,6 +101,33 @@ export class UserService {
       const decoded = await jwt.verify(token, "secret");
       if (!decoded) {
         throw new Error("login first");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async authenticationGoogle(profile: Profile, done: any) {
+    try {
+      const currentUser = await this.repo.findGoogleId(profile.id);
+  console.log('here2')
+      if (currentUser) {
+        console.log("User exists:", currentUser);
+        done(null, currentUser);
+      } else {
+        const newUser :User = {
+          id : profile.id,
+          name : profile.displayName,
+          email : profile.emails![0].value,
+          googleID : profile.id,
+          verified : true,
+          password : profile.id ,
+          oAuthToken : "google",
+          is2FaEnabled : false ,
+          image : profile.photos![0].value
+        }
+
+        await this.repo.createUser(newUser);
+        done(null, newUser);
       }
     } catch (error) {
       console.log(error);
