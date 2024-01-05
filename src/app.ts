@@ -23,5 +23,6 @@ connectToMongoDB();
 
 const Port: string = process.env.PORT || "4000";
 app.listen(Port, () => {
+  console.log("Listen");
   console.log(` Server is running  🚀 In Port ${Port} 📭 `);
 });
