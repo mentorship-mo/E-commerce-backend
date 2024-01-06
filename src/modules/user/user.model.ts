@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
+
     is2FaEnabled : {
       type: Boolean,
       default: false
