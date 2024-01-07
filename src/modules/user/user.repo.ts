@@ -12,10 +12,6 @@ class userRepo implements userDAO {
   async createUser(user: User): Promise<void> {
     await this.model.create(user);
   }
-  async createGoogleUser(user: { name: string; email: string; googleID: string , password: string }): Promise<void> {
-    await this.model.create(user);
-  }
-  
   async verifyEmail(verificationToken: string): Promise<any> {
     return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
   }

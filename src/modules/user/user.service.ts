@@ -14,12 +14,12 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-      await this.repo.createUser(userData);
       userData.verificationToken = verificationToken(userData.id);
+      await this.repo.createUser(userData);
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
-      sendVerificationEmail(userData.email, userData.verificationToken);
+      sendVerificationEmail(userData.email, 5 , userData.verificationToken);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -69,7 +69,7 @@ export class UserService {
       throw new Error("Email Not Found");
     }
     user.verificationToken = verificationToken(user.id);
-    sendVerificationEmail(user.email, user.verificationToken);
+    sendVerificationEmail(user.email,5, user.verificationToken);
   };
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
@@ -89,9 +89,7 @@ export class UserService {
   };
   async enableFARequest(email: string) {
     try {
-      const token = verificationToken(email);
       await this.repo.getUserByEmail(email);
-      sendVerificationEmail(email, token);
     } catch (error) {
       console.log(error);
     }
@@ -114,16 +112,13 @@ export class UserService {
         console.log("User exists:", currentUser);
         done(null, currentUser);
       } else {
-        const newUser :User = {
+        const newUser : User = {
           id : profile.id,
           name : profile.displayName,
           email : profile.emails![0].value,
-          googleID : profile.id,
-          verified : true,
-          password : profile.id ,
-          oAuthToken : "google",
-          is2FaEnabled : false ,
-          image : profile.photos![0].value
+          oAuthToken :profile.id ,  
+          authProvider : "Google" , 
+          image : profile.photos![0].value 
         }
 
         await this.repo.createUser(newUser);

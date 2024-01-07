@@ -6,7 +6,6 @@ import { UserService } from '../modules/user/user.service'
 import { db } from '../modules/user/user.repo'
 const configurePassport = (passport: PassportStatic) => {
     const userService = new UserService(db);
-
 passport.use(
     new GoogleStrategy(
         {
