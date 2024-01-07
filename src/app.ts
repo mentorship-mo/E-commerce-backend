@@ -11,6 +11,10 @@ import connectToMongoDB from "./config/dbConfig";
 
 import { combinedRoutes } from "./routes/index";
 
+import { errorHandlerMiddleWare } from "./middleware/error-handler";
+dotenv.config();
+
+
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
@@ -20,7 +24,7 @@ configurePassport(passport)
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
-
+app.use(errorHandlerMiddleWare);
 // DataBase connection
 connectToMongoDB();
 

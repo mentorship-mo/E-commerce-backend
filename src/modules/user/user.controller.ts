@@ -2,8 +2,6 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
-import { userRepoType } from "./user.repo";
-import { generateImageWithText } from "../../utils/image.generator";
 import passport from "passport";
 
 class UserController {
