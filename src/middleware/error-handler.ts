@@ -7,12 +7,8 @@ export const errorHandlerMiddleWare = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("HII");
-  res.send("SSS");
   if (err instanceof CustomError) {
-    return res
-      .sendStatus(err.statusCode)
-      .send({ errors: err.serializeErrors() });
+    return res.status(err.statusCode).json({ errors: err.serializeErrors() });
   }
   console.log(err);
   res.sendStatus(400).send({
