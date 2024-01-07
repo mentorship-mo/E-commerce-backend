@@ -27,6 +27,17 @@ class userRepo implements userDAO {
   async getUserById(id: string): Promise<User | null> {
     return await this.model.findById(id);
   }
+  async enable2FAForUser(email: string): Promise<void> {
+    try {
+      const user = await this.model.findOneAndUpdate({ email }, { is2FAEnabled: true });
+      if (!user) {
+        throw new Error('User not found');
+      }
+    } catch (error) {
+      console.error('Error enabling 2FA for user:', error);
+      throw error;
+    }
+  }
 }
 
 

@@ -131,38 +131,47 @@ class UserController {
     }
   };
 
-  enableFARequest: RequestHandler = async (req, res) => {
+  requestEnable2FA: RequestHandler = async (req, res) => {
     try {
       const { email } = req.body;
-      await this.service.enableFARequest(email);
-      res.status(200).json({ message: "Email sent successfully" });
+  
+      const twoFactorToken = await this.service.requestEnable2FAByEmail(email);
+      // Now you have access to the token, and you can use it as needed
+  
+      return res.status(200).json({ message: 'Request to enable 2FA sent.', twoFactorToken });
     } catch (error) {
-      console.log(error);
+      console.error('Error requesting enablement of 2FA:', error);
+      return res.status(500).json({ error: 'Internal server error.' });
     }
   };
-  enableFA: RequestHandler = (req, res) => {
+
+  enable2FA: RequestHandler = async (req, res) => {
     try {
-      const token: string | undefined = req.query.token as string | undefined;
-      if (token === undefined) {
-        res.status(404).json({ msg: "token is missing" });
-        return;
+      const { email, twoFactorToken } = req.body;
+      const is2FAEnabled = await this.service.verifyEnable2FAToken(email, twoFactorToken);
+      
+      if (is2FAEnabled) {
+        return res.status(200).json({ message: '2FA enabled successfully.' });
+      } else {
+        return res.status(400).json({ message: 'Invalid token or unable to enable 2FA.' });
       }
-      this.service.enableFA(token);
-      res.status(200).json({ message: "2FA enabled successfully" });
     } catch (error) {
-      console.log(error);
+      console.error('Error enabling 2FA:', error);
+      return res.status(500).json({ error: 'Internal server error.' });
     }
   };
+  
+
 
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
     this.router.get("/verify-email/:token", this.verifyEmail);
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.get("/get-me", this.getUserDataByToken);
     this.router.get("/refresh-token", this.getRefreshToken);
-    this.router.get("/me", this.getUserDataByToken);
-    this.router.post("/enable-2fa-Request", this.enableFARequest);
-    this.router.post("/enable-2fa", this.enableFA);
+    this.router.post("/enable-2fa-Request", this.requestEnable2FA);
+    this.router.post("/enable-2fa", this.enable2FA);
   }
   getRouter() {
     return this.router;

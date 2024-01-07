@@ -15,9 +15,10 @@ export class UserService {
   async createUser(userData: User): Promise<void> {
     try {
       await this.repo.createUser(userData);
+      userData.verificationToken = verificationToken(userData.id)
       userData.verificationToken = verificationToken(userData.id);
       if (!userData.verificationToken) {
-        throw new Error("Failed to generate verification token");
+        throw new Error("Failed to generate verification token")
       }
       sendVerificationEmail(userData.email, userData.verificationToken);
     } catch (error) {
@@ -58,7 +59,7 @@ export class UserService {
 
     const user = await this.repo.verifyEmail(verificationToken);
     if (!user) {
-      throw new Error("Failed to verify email");
+      throw new Error("Failed to verify email")
     }
     user.verified = true;
     user.verificationToken = "";
@@ -83,6 +84,54 @@ export class UserService {
       throw error;
     }
   };
+
+  async requestEnable2FAByEmail(email: string): Promise<void> {
+    try {
+      console.log('2FA_SECRET_KEY:', process.env['2FA_SECRET_KEY']);
+      const user = await this.repo.getUserByEmail(email);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const twoFactorToken = jwt.sign({ userId: user.id }, "2FA_SECRET_KEY", { expiresIn: "1h" });
+      // This is a placeholder for sending the token via email
+      await this.send2FATokenByEmail(email, twoFactorToken);
+
+    } catch (error) {
+      console.error('Error requesting enablement of 2FA:', error);
+      throw error;
+    }
+  }
+
+  async verifyEnable2FAToken(email: string, twoFactorToken: string): Promise<boolean> {
+    try {
+      const user = await this.repo.getUserByEmail(email);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+ 
+      const decodedToken = jwt.verify(twoFactorToken, "2FA_SECRET_KEY") as { userId: string };
+
+      if (!decodedToken || decodedToken.userId !== user.id) {
+        return false; // Token is invalid or doesn't match the user
+      }
+
+      await this.repo.enable2FAForUser(email);
+      return true; // Token is valid, and 2FA enabled
+
+    } catch (error) {
+      console.error('Error verifying enable 2FA token:', error);
+      throw error;
+    }
+  }
+
+  // handle sending the 2FA token via email
+  private async send2FATokenByEmail(email: string, twoFactorToken: string): Promise<void> {
+    //  logic to send the token to the user's email
+    // using email service or package to send the token
+    console.log(`Sending 2FA token ${twoFactorToken} to ${email}`);
+  }
+
   getAccessTokenByRefreshToken = async (token: string) => {
     try {
       const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
@@ -99,23 +148,5 @@ export class UserService {
     }
   };
 
-  async enableFARequest(email: string) {
-    try {
-      const token = verificationToken(email);
-      await this.repo.getUserByEmail(email);
-      sendVerificationEmail(email, token);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  async enableFA(token: string) {
-    try {
-      const decoded = await jwt.verify(token, "secret");
-      if (!decoded) {
-        throw new Error("login first");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 }
+

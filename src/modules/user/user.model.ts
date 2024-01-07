@@ -35,6 +35,7 @@ const UserSchema = new Schema<User>(
     image: String,
   },
   { timestamps: true },
+
 );
 
 UserSchema.pre("save", async function (next) {
