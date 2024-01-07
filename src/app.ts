@@ -27,9 +27,7 @@ app.use(morgan("dev"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
 
-// Add catch-all route for unhandled routes
 app.all("*", (req: Request, res: Response) => {
-  // Assuming NotFoundError is properly thrown in your routes
   throw new NotFoundError();
 });
 
