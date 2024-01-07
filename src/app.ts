@@ -14,6 +14,13 @@ import { combinedRoutes } from "./routes/index";
 import { errorHandlerMiddleWare } from "./middleware/error-handler";
 dotenv.config();
 
+declare global {
+  namespace Express {
+    interface Request {
+      user: any;
+    }
+  }
+}
 
 const app = express();
 app.use(cookieParser());
