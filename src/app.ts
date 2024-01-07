@@ -8,6 +8,7 @@ dotenv.config();
 import connectToMongoDB from "./config/dbConfig";
 
 import { combinedRoutes } from "./routes/index";
+import { errorHandlerMiddleWare } from "./middleware/error-handler";
 dotenv.config();
 
 const app = express();
@@ -17,7 +18,7 @@ app.use(morgan("dev"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
-
+app.use(errorHandlerMiddleWare);
 // DataBase connection
 connectToMongoDB();
 
