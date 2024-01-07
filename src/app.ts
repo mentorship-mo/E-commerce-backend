@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import morgan from "morgan";
@@ -9,7 +9,7 @@ import connectToMongoDB from "./config/dbConfig";
 
 import { combinedRoutes } from "./routes/index";
 import { errorHandlerMiddleWare } from "./middleware/error-handler";
-dotenv.config();
+import { NotFoundError } from "./utils/error/not-found-error";
 
 declare global {
   namespace Express {
@@ -26,11 +26,17 @@ app.use(morgan("dev"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
+
+app.all("*", (req: Request, res: Response) => {
+  throw new NotFoundError();
+});
+
 app.use(errorHandlerMiddleWare);
+
 // DataBase connection
 connectToMongoDB();
 
 const Port: string = process.env.PORT || "4000";
 app.listen(Port, () => {
-  console.log(` Server is running  🚀 In Port ${Port} 📭 `);
+  console.log(` Server is running 🚀 In Port ${Port} 📭 `);
 });

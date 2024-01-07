@@ -2,7 +2,7 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
-// import { generateImageWithText } from "../../utils/image.generator";
+import { generateImageWithText } from "../../utils/image.generator";
 
 class UserController {
   private router = express.Router();
@@ -49,8 +49,8 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
-      // const imgName = generateImageWithText(req.body.name || "");
-      // user.image = imgName;
+      const imgName = await generateImageWithText(req.body.name || "");
+      user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({
         message: "User created successfully, check your email to verify",
