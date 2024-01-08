@@ -3,7 +3,9 @@ import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 import { verificationToken } from "../../middleware/send.email";
+import { Profile } from "passport";
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -18,7 +20,7 @@ export class UserService {
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
-      sendVerificationEmail(userData.email, userData.verificationToken);
+      sendVerificationEmail(userData.email, 5, userData.verificationToken);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -46,12 +48,19 @@ export class UserService {
   verifyEmail = async (verificationToken: string): Promise<void> => {
     const decoded = jwt.verify(verificationToken, "secret");
 
+    if (!decoded) {
+      throw new Error("login first");
+    }
+    console.log("Decoded Token:", decoded);
+
+    // user.verified = true;
+    // user.verificationToken = "";
+    // user.save();
+
     const user = await this.repo.verifyEmail(verificationToken);
     if (!user) {
       throw new Error("Failed to verify email");
     }
-    console.log("Decoded Token:", decoded);
-
     user.verified = true;
     user.verificationToken = "";
     user.save();
@@ -62,7 +71,7 @@ export class UserService {
       throw new Error("Email Not Found");
     }
     user.verificationToken = verificationToken(user.id);
-    sendVerificationEmail(user.email, user.verificationToken);
+    sendVerificationEmail(user.email, 5, user.verificationToken);
   };
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
@@ -75,4 +84,69 @@ export class UserService {
       throw error;
     }
   };
+  getAccessTokenByRefreshToken = async (token: string) => {
+    try {
+      const decoded = (await jwt.verify(token, "refreshTokenSecret")) as {
+        email: string;
+      };
+      const email = decoded.email;
+      const accessToken = await jwt.sign({ email }, "secret", {
+        expiresIn: "1h",
+      });
+      return accessToken;
+    } catch (error) {
+      console.error("Error decoding token or fetching user data:", error);
+      throw error;
+    }
+  };
+
+  async enableFARequest(email: string) {
+    try {
+      await this.repo.getUserByEmail(email);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async enableFA(token: string) {
+    try {
+      const decoded = await jwt.verify(token, "secret");
+      if (!decoded) {
+        throw new Error("login first");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async authenticationGoogle(profile: Profile, done: any) {
+    try {
+      const currentUser = await this.repo.findGoogleId(profile.id);
+      console.log("here2");
+      if (currentUser) {
+        console.log("User exists:", currentUser);
+        done(null, currentUser);
+      } else {
+        const newUser: User = {
+          id: profile.id,
+          name: profile.displayName,
+          email: profile.emails![0].value,
+          oAuthToken: profile.id,
+          authProvider: "Google",
+          image: profile.photos![0].value,
+        };
+
+        await this.repo.createUser(newUser);
+        done(null, newUser);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async updateUserName(name: string, token: string) {
+    const decoded = (await jwt.verify(token, "secret")) as { email: string };
+    if (!decoded) {
+      throw new Error("you are not authenticated");
+    }
+
+    return await this.repo.updateNameByEmail(decoded.email, name);
+  }
 }

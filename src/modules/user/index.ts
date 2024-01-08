@@ -10,4 +10,5 @@ const userController = new UserController(userService);
 userController.initRoutes();
 
 
+
 export { userController as userRoutes };
