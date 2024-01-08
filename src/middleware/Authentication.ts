@@ -1,10 +1,10 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../modules/user/user.model";
 
 class AuthenticationMiddleware {
   async authenticate(
-    req: any,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {

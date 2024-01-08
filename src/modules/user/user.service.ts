@@ -1,3 +1,4 @@
+
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
@@ -5,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import { verificationToken } from "../../middleware/send.email";
+import { Profile } from "passport";
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -14,12 +16,12 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-      await this.repo.createUser(userData);
       userData.verificationToken = verificationToken(userData.id);
+      await this.repo.createUser(userData);
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
-      sendVerificationEmail(userData.email, userData.verificationToken);
+      sendVerificationEmail(userData.email, 5 , userData.verificationToken);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -70,7 +72,7 @@ export class UserService {
       throw new Error("Email Not Found");
     }
     user.verificationToken = verificationToken(user.id);
-    sendVerificationEmail(user.email, user.verificationToken);
+    sendVerificationEmail(user.email,5, user.verificationToken);
   };
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
@@ -101,9 +103,7 @@ export class UserService {
 
   async enableFARequest(email: string) {
     try {
-      const token = verificationToken(email);
       await this.repo.getUserByEmail(email);
-      sendVerificationEmail(email, token);
     } catch (error) {
       console.log(error);
     }
@@ -113,6 +113,30 @@ export class UserService {
       const decoded = await jwt.verify(token, "secret");
       if (!decoded) {
         throw new Error("login first");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async authenticationGoogle(profile: Profile, done: any) {
+    try {
+      const currentUser = await this.repo.findGoogleId(profile.id);
+  console.log('here2')
+      if (currentUser) {
+        console.log("User exists:", currentUser);
+        done(null, currentUser);
+      } else {
+        const newUser : User = {
+          id : profile.id,
+          name : profile.displayName,
+          email : profile.emails![0].value,
+          oAuthToken :profile.id ,  
+          authProvider : "Google" , 
+          image : profile.photos![0].value 
+        }
+
+        await this.repo.createUser(newUser);
+        done(null, newUser);
       }
     } catch (error) {
       console.log(error);

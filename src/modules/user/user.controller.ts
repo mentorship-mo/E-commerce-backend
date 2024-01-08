@@ -2,7 +2,8 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
-// import { generateImageWithText } from "../../utils/image.generator";
+import passport from "passport";
+import { generateImageWithText } from "../../utils/image.generator";
 
 class UserController {
   private router = express.Router();
@@ -49,8 +50,8 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
-      // const imgName = generateImageWithText(req.body.name || "");
-      // user.image = imgName;
+      const imgName = await generateImageWithText(req.body.name || "");
+      user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({
         message: "User created successfully, check your email to verify",
@@ -153,6 +154,25 @@ class UserController {
       console.log(error);
     }
   };
+  googleLogin : RequestHandler = (req, res, next) => {
+    try {
+      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+    } catch (error) {
+      console.log(error);
+    }
+  } 
+  googleRedirect : RequestHandler =  (req, res, next) => {
+    passport.authenticate('google',{ failureRedirect: '/login' }, (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err });
+        }
+        if (!user) {
+            return res.status(401).json({ error: 'Authentication failed' });
+        }
+        res.status(200).json({ user });
+    })(req, res, next);
+}
+
 
   initRoutes() {
     this.router.post("/", this.createUser);
@@ -163,6 +183,8 @@ class UserController {
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);
     this.router.post("/enable-2fa", this.enableFA);
+    this.router.get('/google' ,this.googleLogin)
+    this.router.get('/google/redirect', this.googleRedirect)
   }
   getRouter() {
     return this.router;
