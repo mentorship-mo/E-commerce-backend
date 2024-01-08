@@ -16,9 +16,9 @@ import { NotFoundError } from "./utils/error/not-found-error";
 
 declare global {
   namespace Express {
-    interface Request {
-      user: any;
-    }
+    // interface Request {
+    //   user: any;
+    // }
   }
 }
 
@@ -26,8 +26,8 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(passport.initialize())
-configurePassport(passport)
+app.use(passport.initialize());
+configurePassport(passport);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
@@ -45,4 +45,3 @@ const Port: string = process.env.PORT || "4000";
 app.listen(Port, () => {
   console.log(` Server is running 🚀 In Port ${Port} 📭 `);
 });
-
