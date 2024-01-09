@@ -24,7 +24,7 @@ class userRepo implements userDAO {
   async getUserById(id: string): Promise<User | null> {
     return await this.model.findById(id);
   }
-  async updateUserAddresses(id: string, addresses: any): Promise<any> {
+   updateUserAddresses =async(id: string, addresses: any): Promise<any> =>{
     return await this.model.findOneAndUpdate({ _id: id }, { $set: { addresses } })
   }
 }
