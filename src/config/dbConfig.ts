@@ -1,7 +1,7 @@
 import mongoose, { Connection } from "mongoose";
 
-const dbConnectionString ="mongodb://127.0.0.1:27017/E-commerce1"
-  // process.env.DB_CONNECTION_STRING || "mongodb+srv://mentorshipatweb:mentorship@mentorship.rtuihiw.mongodb.net";
+const dbConnectionString =
+  process.env.DB_CONNECTION_STRING || "mongodb+srv://mentorshipatweb:mentorship@mentorship.rtuihiw.mongodb.net";
 
 const connectToMongoDB = async (): Promise<Connection> => {
   try {
