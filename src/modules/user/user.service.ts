@@ -142,4 +142,15 @@ export class UserService {
       console.log(error);
     }
   }
+  async updateAddresses (userId: string , addresses : string) : Promise<User | undefined>{
+    try {
+      const user = await this.repo.updateUserAddresses(userId , addresses)
+      if (!user) {
+        throw new Error("user not found")
+      }
+      return user
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }

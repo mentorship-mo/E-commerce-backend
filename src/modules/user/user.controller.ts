@@ -4,6 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { generateImageWithText } from "../../utils/image.generator";
+// import {authMiddleware}  from '../../middleware/Authentication'
 
 class UserController {
   private router = express.Router();
@@ -172,6 +173,22 @@ class UserController {
         res.status(200).json({ user });
     })(req, res, next);
 }
+   updateAddresses :  RequestHandler = async (req,res,next)=>{
+ 
+    const userId  = req.body.userId
+    if(!userId){
+      return res.json({msg:"user not found"})
+    }
+    const { addresses} = req.body
+    try {
+      const user = await this.service.updateAddresses(userId,addresses)
+      res.status(200).json({msg : "updated successfully" ,user})
+    } catch (error) {
+      console.log(error);
+    }
+
+
+  }
 
 
   initRoutes() {
@@ -185,6 +202,7 @@ class UserController {
     this.router.post("/enable-2fa", this.enableFA);
     this.router.get('/google' ,this.googleLogin)
     this.router.get('/google/redirect', this.googleRedirect)
+    this.router.put('/update-addresses' , this.updateAddresses)
   }
   getRouter() {
     return this.router;
