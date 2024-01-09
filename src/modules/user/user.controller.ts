@@ -155,20 +155,27 @@ class UserController {
       console.log(error);
     }
   };
-  googleLogin : RequestHandler = (req, res, next) => {
+  googleLogin: RequestHandler = (req, res, next) => {
     try {
-      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+      passport.authenticate("google", { scope: ["profile", "email"] })(
+        req,
+        res,
+        next
+      );
     } catch (error) {
       console.log(error);
     }
-  } 
-  googleRedirect : RequestHandler =  (req, res, next) => {
-    passport.authenticate('google',{ failureRedirect: '/login' }, (err, user) => {
+  };
+  googleRedirect: RequestHandler = (req, res, next) => {
+    passport.authenticate(
+      "google",
+      { failureRedirect: "/login" },
+      (err, user) => {
         if (err) {
-            return res.status(500).json({ error: err });
+          return res.status(500).json({ error: err });
         }
         if (!user) {
-            return res.status(401).json({ error: 'Authentication failed' });
+          return res.status(401).json({ error: "Authentication failed" });
         }
         res.status(200).json({ user });
     })(req, res, next);
@@ -183,7 +190,19 @@ class UserController {
       console.log(error);
     }
   }
-
+  updateName: RequestHandler = async (req, res) => {
+    const { name } = req.body;
+    const token = req.cookies.accessToken as string;
+    try {
+      const user = await this.service.updateUserName(name, token);
+      if (!user) {
+        return res.send({ msg: "user is not found" });
+      }
+      res.send({ msg: "User has been updated successfully" });
+    } catch (err) {
+      res.status(500).send({ msg: "Internal server error" });
+    }
+  };
 
   initRoutes() {
     this.router.post("/", this.createUser);
@@ -196,7 +215,8 @@ class UserController {
     this.router.post("/enable-2fa", this.enableFA);
     this.router.get('/google' ,this.googleLogin)
     this.router.get('/google/redirect', this.googleRedirect)
-    this.router.put('/update-addresses',authMiddleware.authenticate , this.updateAddresses)
+    this.router.put('/update-addresses',authMiddleware.authenticate , this.updateAddresses);
+    this.router.patch("/update-user", this.updateName);
   }
   getRouter() {
     return this.router;
