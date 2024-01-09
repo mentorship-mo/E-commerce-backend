@@ -8,6 +8,11 @@ export type  User = {
   authProvider : "Local" | "Google"
   otp?: string;
   image: string;
+  addresses?: {
+    street: string;
+    city: string;
+    zipCode: number;
+  };
   is2FaEnabled ?: boolean
 }& (Google | Local)
 interface Google  { 

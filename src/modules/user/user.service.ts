@@ -27,19 +27,23 @@ export class UserService {
     }
   }
 
-  async authenticateUser(email: string, password: string): Promise<boolean> {
+  async authenticateUser(email: string, password: string): Promise<any> {
     try {
       const user = await this.repo.getUserByEmail(email);
 
       if (!user) {
         // user not found with the provided email
-        return false;
+        throw new Error("User not found");
       }
 
       // check if password nmatch
       const passwordsMatch = await bcrypt.compare(password, user.password);
 
-      return passwordsMatch;
+      if (!passwordsMatch) {
+        throw new Error("Invalid password");
+      }
+
+      return user;
     } catch (error) {
       console.error("error authenticating user:", error);
       throw error;
@@ -141,6 +145,19 @@ export class UserService {
       console.log(error);
     }
   }
+
+   updateAddresses = async(userId: string, addresses : string) : Promise<User | undefined> =>{
+    try {
+      const user = await this.repo.updateUserAddresses(userId , addresses)
+      if (!user) {
+        throw new Error("user not found")
+      }
+      return user
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
   async updateUserName(name: string, token: string) {
     const decoded = (await jwt.verify(token, "secret")) as { email: string };
     if (!decoded) {
@@ -150,3 +167,4 @@ export class UserService {
     return await this.repo.updateNameByEmail(decoded.email, name);
   }
 }
+

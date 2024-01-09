@@ -4,6 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { generateImageWithText } from "../../utils/image.generator";
+import {authMiddleware}  from '../../middleware/Authentication'
 
 class UserController {
   private router = express.Router();
@@ -14,16 +15,16 @@ class UserController {
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
-      const isAuthenticated = await this.service.authenticateUser(
+      const user : User= await this.service.authenticateUser(
         email,
         password
       );
 
-      if (isAuthenticated) {
-        const accessToken = await jwt.sign({ email }, "secret", {
+      if (user) {
+        const accessToken = await jwt.sign({ email , id :user.id }, "secret", {
           expiresIn: "1h",
         });
-        const refreshToken = await jwt.sign({ email }, "refreshTokenSecret", {
+        const refreshToken = await jwt.sign({ email , id :user.id }, "refreshTokenSecret", {
           expiresIn: "30d",
         });
         res.cookie("accessToken", accessToken, {
@@ -177,10 +178,18 @@ class UserController {
           return res.status(401).json({ error: "Authentication failed" });
         }
         res.status(200).json({ user });
-      }
-    )(req, res, next);
-  };
-
+    })(req, res, next);
+}
+   updateAddresses :  RequestHandler = async (req,res,next)=>{
+    try {
+      const userId : any = req.user
+      const { addresses} = req.body
+      const user =  await this.service.updateAddresses(userId,addresses)
+      res.status(200).json({msg : "updated successfully" ,user})
+    } catch (error) {
+      console.log(error);
+    }
+  }
   updateName: RequestHandler = async (req, res) => {
     const { name } = req.body;
     const token = req.cookies.accessToken as string;
@@ -204,8 +213,9 @@ class UserController {
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);
     this.router.post("/enable-2fa", this.enableFA);
-    this.router.get("/google", this.googleLogin);
-    this.router.get("/google/redirect", this.googleRedirect);
+    this.router.get('/google' ,this.googleLogin)
+    this.router.get('/google/redirect', this.googleRedirect)
+    this.router.put('/update-addresses',authMiddleware.authenticate , this.updateAddresses);
     this.router.patch("/update-user", this.updateName);
   }
   getRouter() {

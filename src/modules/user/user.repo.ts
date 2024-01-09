@@ -27,10 +27,11 @@ class userRepo implements userDAO {
   async getUserById(id: string): Promise<User | null> {
     return await this.model.findById(id);
   }
+   updateUserAddresses =async(id: string, addresses: any): Promise<any> =>{
+    return await this.model.findOneAndUpdate({ _id: id }, { $set: { addresses } })}
   async updateNameByEmail(email: string, name: string) {
     const user = await this.model.updateOne({ email }, { name }, { new: true });
     return user;
-  }
 }
 
 type userRepoType = userRepo;
