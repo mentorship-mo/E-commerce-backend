@@ -33,9 +33,15 @@ class userRepo implements userDAO {
     const user = await this.model.updateOne({ email }, { name }, { new: true });
     return user;
 }
+async updateUser(user: User): Promise<void> {
+  await this.model.findByIdAndUpdate(user.id, {
+    email: user.email,
+    verificationToken: user.verificationToken,
 
+  });
+}
+}
 type userRepoType = userRepo;
-
 const db = new userRepo(UserModel);
 
 export { userRepoType, db };
