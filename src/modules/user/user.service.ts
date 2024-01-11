@@ -1,4 +1,3 @@
-
 import { sendVerificationEmail } from "../../middleware/send.email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
@@ -21,26 +20,30 @@ export class UserService {
       if (!userData.verificationToken) {
         throw new Error("Failed to generate verification token");
       }
-      sendVerificationEmail(userData.email, 5 , userData.verificationToken);
+      sendVerificationEmail(userData.email, 5, userData.verificationToken);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
     }
   }
 
-  async authenticateUser(email: string, password: string): Promise<boolean> {
+  async authenticateUser(email: string, password: string): Promise<any> {
     try {
       const user = await this.repo.getUserByEmail(email);
 
       if (!user) {
         // user not found with the provided email
-        return false;
+        throw new Error("User not found");
       }
 
       // check if password nmatch
       const passwordsMatch = await bcrypt.compare(password, user.password);
 
-      return passwordsMatch;
+      if (!passwordsMatch) {
+        throw new Error("Invalid password");
+      }
+
+      return user;
     } catch (error) {
       console.error("error authenticating user:", error);
       throw error;
@@ -72,7 +75,7 @@ export class UserService {
       throw new Error("Email Not Found");
     }
     user.verificationToken = verificationToken(user.id);
-    sendVerificationEmail(user.email,5, user.verificationToken);
+    sendVerificationEmail(user.email, 5, user.verificationToken);
   };
 
   getLoggedUserDataByToken = async (token: string): Promise<User | null> => {
@@ -121,19 +124,19 @@ export class UserService {
   async authenticationGoogle(profile: Profile, done: any) {
     try {
       const currentUser = await this.repo.findGoogleId(profile.id);
-  console.log('here2')
+      console.log("here2");
       if (currentUser) {
         console.log("User exists:", currentUser);
         done(null, currentUser);
       } else {
-        const newUser : User = {
-          id : profile.id,
-          name : profile.displayName,
-          email : profile.emails![0].value,
-          oAuthToken :profile.id ,  
-          authProvider : "Google" , 
-          image : profile.photos![0].value 
-        }
+        const newUser: User = {
+          id: profile.id,
+          name: profile.displayName,
+          email: profile.emails![0].value,
+          oAuthToken: profile.id,
+          authProvider: "Google",
+          image: profile.photos![0].value,
+        };
 
         await this.repo.createUser(newUser);
         done(null, newUser);
@@ -142,4 +145,26 @@ export class UserService {
       console.log(error);
     }
   }
+
+   updateAddresses = async(userId: string, addresses : string) : Promise<User | undefined> =>{
+    try {
+      const user = await this.repo.updateUserAddresses(userId , addresses)
+      if (!user) {
+        throw new Error("user not found")
+      }
+      return user
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
+  async updateUserName(name: string, token: string) {
+    const decoded = (await jwt.verify(token, "secret")) as { email: string };
+    if (!decoded) {
+      throw new Error("you are not authenticated");
+    }
+
+    return await this.repo.updateNameByEmail(decoded.email, name);
+  }
+}
+

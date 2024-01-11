@@ -13,19 +13,26 @@ class userRepo implements userDAO {
     await this.model.create(user);
   }
   async verifyEmail(verificationToken: string): Promise<any> {
-    return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
+    return await this.model.findOneAndUpdate(
+      { verificationToken },
+      { verified: true }
+    );
   }
   async getUserByEmail(email: string): Promise<User | null> {
-    return await this.model.findOne({ email })
+    return await this.model.findOne({ email });
   }
   async findGoogleId(id: string): Promise<User | null> {
-    return await this.model.findOne({ googleID: id })
+    return await this.model.findOne({ googleID: id });
   }
   async getUserById(id: string): Promise<User | null> {
     return await this.model.findById(id);
   }
+   updateUserAddresses =async(id: string, addresses: any): Promise<any> =>{
+    return await this.model.findOneAndUpdate({ _id: id }, { $set: { addresses } })}
+  async updateNameByEmail(email: string, name: string) {
+    const user = await this.model.updateOne({ email }, { name }, { new: true });
+    return user;
 }
-
 
 type userRepoType = userRepo;
 
