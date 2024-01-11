@@ -146,18 +146,20 @@ export class UserService {
     }
   }
 
-   updateAddresses = async(userId: string, addresses : string) : Promise<User | undefined> =>{
+  updateAddresses = async (
+    userId: string,
+    addresses: string
+  ): Promise<User | undefined> => {
     try {
-      const user = await this.repo.updateUserAddresses(userId , addresses)
+      const user = await this.repo.updateUserAddresses(userId, addresses);
       if (!user) {
-        throw new Error("user not found")
+        throw new Error("user not found");
       }
-      return user
+      return user;
     } catch (error) {
       console.log(error);
     }
-  }
-}
+  };
   async updateUserName(name: string, token: string) {
     const decoded = (await jwt.verify(token, "secret")) as { email: string };
     if (!decoded) {
@@ -166,5 +168,41 @@ export class UserService {
 
     return await this.repo.updateNameByEmail(decoded.email, name);
   }
-}
+  async updateEmail(
+    userId: string,
+    currentPassword: string,
+    newEmail: string
+  ): Promise<void> {
+    try {
+      const user = await this.repo.getUserById(userId);
 
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const passwordsMatch = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
+
+      if (!passwordsMatch) {
+        throw new Error("Incorrect password");
+      }
+
+      console.log(this.getLoggedUserDataByToken);
+      user.email = newEmail;
+      user.verificationToken = verificationToken(user.id);
+
+      await this.repo.updateUserEmail(user);
+
+      if (!user.verificationToken) {
+        throw new Error("Failed to generate verification token");
+      }
+
+      sendVerificationEmail(newEmail, 5, user.verificationToken);
+    } catch (error) {
+      console.error("Error updating email:", error);
+      throw error;
+    }
+  }
+}

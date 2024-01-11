@@ -4,7 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { generateImageWithText } from "../../utils/image.generator";
-import {authMiddleware}  from '../../middleware/Authentication'
+import { authMiddleware } from "../../middleware/Authentication";
 
 class UserController {
   private router = express.Router();
@@ -15,18 +15,19 @@ class UserController {
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
-      const user : User= await this.service.authenticateUser(
-        email,
-        password
-      );
+      const user: User = await this.service.authenticateUser(email, password);
 
       if (user) {
-        const accessToken = await jwt.sign({ email , id :user.id }, "secret", {
+        const accessToken = await jwt.sign({ email, id: user.id }, "secret", {
           expiresIn: "1h",
         });
-        const refreshToken = await jwt.sign({ email , id :user.id }, "refreshTokenSecret", {
-          expiresIn: "30d",
-        });
+        const refreshToken = await jwt.sign(
+          { email, id: user.id },
+          "refreshTokenSecret",
+          {
+            expiresIn: "30d",
+          }
+        );
         res.cookie("accessToken", accessToken, {
           httpOnly: true,
           maxAge: 3600000,
@@ -84,7 +85,6 @@ class UserController {
     const jwtCookie = req.cookies.accessToken as string | undefined;
     if (!jwtCookie) {
       res.status(401).json({ error: "Unauthorized" });
-
       return;
     }
 
@@ -178,18 +178,19 @@ class UserController {
           return res.status(401).json({ error: "Authentication failed" });
         }
         res.status(200).json({ user });
-    })(req, res, next);
-}
-   updateAddresses :  RequestHandler = async (req,res,next)=>{
+      }
+    )(req, res, next);
+  };
+  updateAddresses: RequestHandler = async (req, res, next) => {
     try {
-      const userId : any = req.user
-      const { addresses} = req.body
-      const user =  await this.service.updateAddresses(userId,addresses)
-      res.status(200).json({msg : "updated successfully" ,user})
+      const userId: any = req.user;
+      const { addresses } = req.body;
+      const user = await this.service.updateAddresses(userId, addresses);
+      res.status(200).json({ msg: "updated successfully", user });
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   updateName: RequestHandler = async (req, res) => {
     const { name } = req.body;
     const token = req.cookies.accessToken as string;
@@ -203,7 +204,17 @@ class UserController {
       res.status(500).send({ msg: "Internal server error" });
     }
   };
-
+  updateEmail: RequestHandler = async (req, res, next) => {
+    const { userId, password, newEmail } = req.body;
+    try {
+        await this.service.updateEmail(userId, password, newEmail);
+        res.status(200).json({ message: "Email updated successfully" });
+      
+    } catch (error) {
+      console.error("Error updating email:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
@@ -213,10 +224,19 @@ class UserController {
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);
     this.router.post("/enable-2fa", this.enableFA);
-    this.router.get('/google' ,this.googleLogin)
-    this.router.get('/google/redirect', this.googleRedirect)
-    this.router.put('/update-addresses',authMiddleware.authenticate , this.updateAddresses);
+    this.router.get("/google", this.googleLogin);
+    this.router.get("/google/redirect", this.googleRedirect);
+    this.router.put(
+      "/update-addresses",
+      authMiddleware.authenticate,
+      this.updateAddresses
+    );
     this.router.patch("/update-user", this.updateName);
+    this.router.put(
+      "/update-email",
+      authMiddleware.authenticate,
+      this.updateEmail
+    );
   }
   getRouter() {
     return this.router;
