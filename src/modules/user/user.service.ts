@@ -170,43 +170,31 @@ export class UserService {
     try {
       // Fetch the user from the database
       const user = await this.repo.findById(userId);
-
+  
       if (!user) {
         return { status: 404, message: 'User not found' };
       }
-
+  
       // Check if the old password is correct
-      const isPasswordValid = await this.validateOldPassword(oldPassword, user.password);
-
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+  
       if (!isPasswordValid) {
         return { status: 401, message: 'Invalid old password' };
       }
-
+  
       // Hash the new password
-      const hashedPassword = await this.hashPassword(newPassword);
-
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+  
       // Update the user's password
       await this.repo.updatePassword(userId, hashedPassword);
-
+  
       return { status: 200, message: 'Password updated successfully' };
     } catch (error) {
       console.error(error);
       return { status: 500, message: 'Internal Server Error' };
     }
   }
-
-  private async validateOldPassword(oldPassword: string, hashedPassword: string | undefined): Promise<boolean> {
-    if (!hashedPassword) {
-      // Handle the case where hashedPassword is undefined 
-      return false;
-    }
   
-    return await bcrypt.compare(oldPassword, hashedPassword);
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
-  }
 
 }
 
