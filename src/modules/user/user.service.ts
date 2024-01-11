@@ -157,7 +157,6 @@ export class UserService {
       console.log(error);
     }
   }
-}
   async updateUserName(name: string, token: string) {
     const decoded = (await jwt.verify(token, "secret")) as { email: string };
     if (!decoded) {
@@ -166,5 +165,48 @@ export class UserService {
 
     return await this.repo.updateNameByEmail(decoded.email, name);
   }
+
+  async updatePassword(userId: string, oldPassword: string, newPassword: string): Promise<{ status: number, message: string }> {
+    try {
+      // Fetch the user from the database
+      const user = await this.repo.findById(userId);
+
+      if (!user) {
+        return { status: 404, message: 'User not found' };
+      }
+
+      // Check if the old password is correct
+      const isPasswordValid = await this.validateOldPassword(oldPassword, user.password);
+
+      if (!isPasswordValid) {
+        return { status: 401, message: 'Invalid old password' };
+      }
+
+      // Hash the new password
+      const hashedPassword = await this.hashPassword(newPassword);
+
+      // Update the user's password
+      await this.repo.updatePassword(userId, hashedPassword);
+
+      return { status: 200, message: 'Password updated successfully' };
+    } catch (error) {
+      console.error(error);
+      return { status: 500, message: 'Internal Server Error' };
+    }
+  }
+
+  private async validateOldPassword(oldPassword: string, hashedPassword: string | undefined): Promise<boolean> {
+    if (!hashedPassword) {
+      // Handle the case where hashedPassword is undefined 
+      return false;
+    }
+  
+    return await bcrypt.compare(oldPassword, hashedPassword);
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
+
 }
 
