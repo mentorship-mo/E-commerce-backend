@@ -22,8 +22,15 @@ app.use(morgan("dev"));
 app.use(passport.initialize());
 configurePassport(passport);
 
-// Use cors middleware
-app.use(cors());
+// Configure cors middleware to allow only http://localhost:3000
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
