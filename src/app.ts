@@ -4,6 +4,7 @@ dotenv.config();
 import swaggerUi from "swagger-ui-express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import passport from "passport";
 
 import { swaggerSpec } from "./utils/swagger/options";
@@ -20,6 +21,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(passport.initialize());
 configurePassport(passport);
+
+// Use cors middleware
+app.use(cors());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
