@@ -4,6 +4,7 @@ dotenv.config();
 import swaggerUi from "swagger-ui-express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import passport from "passport";
 
 import { swaggerSpec } from "./utils/swagger/options";
@@ -20,6 +21,16 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(passport.initialize());
 configurePassport(passport);
+
+// Configure cors middleware to allow only http://localhost:3000
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/v1", combinedRoutes);
