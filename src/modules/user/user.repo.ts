@@ -43,7 +43,20 @@ class userRepo implements userDAO {
       verificationToken: user.verificationToken,
     });
   }
+
+  async findById(userId: string): Promise<User | null> {
+    return await this.model.findById(userId);
+  }
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    // Update the user's password
+    await this.model.findByIdAndUpdate(userId, { password: hashedPassword });
+  }
+  
 }
+
+
+
 type userRepoType = userRepo;
 const db = new userRepo(UserModel);
 

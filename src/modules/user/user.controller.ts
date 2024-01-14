@@ -204,6 +204,29 @@ class UserController {
       res.status(500).send({ msg: "Internal server error" });
     }
   };
+
+  updatePassword: RequestHandler = async (req, res) => {
+    const userId: any = req.user;
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+      const result = await this.service.updatePassword(userId, oldPassword, newPassword);
+
+      if (result.status === 200) {
+        res.status(200).json({ msg: 'Password updated successfully' });
+      } else if (result.status === 401) {
+        res.status(401).json({ msg: 'Invalid old password' });
+      } else if (result.status === 404) {
+        res.status(404).json({ msg: 'User not found' });
+      } else {
+        res.status(500).json({ msg: 'Internal Server Error' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: 'Internal Server Error' });
+    }
+  };
+
   updateEmail: RequestHandler = async (req, res, next) => {
     const { userId, password, newEmail } = req.body;
     try {
@@ -232,6 +255,7 @@ class UserController {
       this.updateAddresses
     );
     this.router.patch("/update-user", this.updateName);
+    this.router.put('/update-password', authMiddleware.authenticate, this.updatePassword);
     this.router.put(
       "/update-email",
       authMiddleware.authenticate,
