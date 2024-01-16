@@ -226,36 +226,3 @@
  *       '401':
  *         description: Unauthorized - Invalid or expired refresh token
  */
-
-/**
- * @swagger
- * /update-username:
- *   patch:
- *     tags:
- *          - update the name of the user
- *     summary: update user name
- *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
- *
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: accessToken
- *         description: access token token for update the username
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *         content:
- *          application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *     responses:
- *       '200':
- *         description: User has been updated successfully
- *       '500':
- *         description: Internal server error
- */
