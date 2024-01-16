@@ -125,9 +125,10 @@
  * @swagger
  * /:
  *   post:
- *     summary: Register a new user
  *     tags:
- *       - Authentication
+ *       - Signup new user
+ *     description: Register a new user
+ *     summary: Signup a new user
  *     requestBody:
  *       content:
  *         application/json:
@@ -151,9 +152,9 @@
  * @swagger
  * /signin:
  *   post:
- *     summary: Sign in user
  *     tags:
- *       - Authentication
+ *       - Sign in user
+ *     summary: Sign in user
  *     requestBody:
  *       content:
  *         application/json:
@@ -174,17 +175,18 @@
 /**
  * @swagger
  * /refresh-token:
- *   post:
+ *   get:
+ *     tags:
+ *          - get a new token from refresh token
  *     summary: Refresh Access Token
  *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
- *     tags:
- *       - Authentication
+ *
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
+ *         name: refreshToken
+ *         description: refresh token token for authentication
  *         required: true
  *         schema:
  *           type: string
