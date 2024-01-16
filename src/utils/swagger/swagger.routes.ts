@@ -247,41 +247,84 @@
  * /me:
  *   get:
  *     summary: Get user data by token
- *     description: Retrieve user data based on the provided authentication token from cookies.
+ *     description: Retrieve user data based on the provided access token stored in the "accessToken" cookie.
  *     tags:
  *       - User
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: Cookies
- *         name: accessToken
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
+ *       - accessToken: []
  *     responses:
  *       '200':
  *         description: User data retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       description: The user's ID
- *                     name:
- *                       type: string
- *                       description: The user's name
- *                     email:
- *                       type: string
- *                       description: The user's email address
- *                     image:
- *                       type: string
- *                       description: The user's profile image URL
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /update-email:
+ *   put:
+ *     summary: Update user email address
+ *     description: Update the email address of the authenticated user.
+ *     tags:
+ *       - User
+ *     security:
+ *       - accessToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               newEmail:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Email updated successfully
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /update-addresses:
+ *   put:
+ *     summary: Update user addresses
+ *     description: Update the addresses of the authenticated user.
+ *     tags:
+ *       - User
+ *     security:
+ *       - accessToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               addresses:
+ *                 type: object
+ *                 properties:
+ *                   street:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   zipCode:
+ *                     type: number
+ *             example:
+ *               addresses:
+ *                 street: "123 Main St"
+ *                 city: "Cityville"
+ *                 zipCode: 12345
+ *     responses:
+ *       '200':
+ *         description: Addresses updated successfully
  *       '401':
  *         description: Unauthorized - Token is missing or invalid
  *       '500':
