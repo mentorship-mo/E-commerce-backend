@@ -31,7 +31,6 @@
  *         description: Bad request
  */
 
-
 /**
  * @swagger
  * /enable-2fa-request:
@@ -244,5 +243,47 @@
  *               message: Internal Server Error
  */
 /**
- * just for testing 
+ * @swagger
+ * /me:
+ *   get:
+ *     summary: Get user data by token
+ *     description: Retrieve user data based on the provided authentication token from cookies.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: Cookies
+ *         name: accessToken
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: User data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: The user's ID
+ *                     name:
+ *                       type: string
+ *                       description: The user's name
+ *                     email:
+ *                       type: string
+ *                       description: The user's email address
+ *                     image:
+ *                       type: string
+ *                       description: The user's profile image URL
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
  */
