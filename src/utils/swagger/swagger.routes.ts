@@ -244,5 +244,31 @@
  *               message: Internal Server Error
  */
 /**
- * just for testing 
+ * @swagger
+ * /google:
+ *   get:
+ *     summary: Initiate Google OAuth authentication
+ *     description: Endpoint to start the Google OAuth authentication process.
+ *     responses:
+ *       '200':
+ *         description: Successfully initiated authentication.
+ */
+/**
+ * @swagger
+ * /google/redirect:
+ *   get:
+ *     summary: Handle Google OAuth redirect
+ *     description: Endpoint to handle the redirect from Google OAuth after authentication.
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         description: The authentication code received from Google.
+ *     responses:
+ *       '200':
+ *         description: Successfully authenticated and redirected.
+ *       '401':
+ *         description: Authentication failed.
+ *       '500':
+ *         description: Internal server error.
  */
