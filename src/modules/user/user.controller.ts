@@ -74,7 +74,7 @@ class UserController {
   };
   ResendVerificationEmail: RequestHandler = async (req, res, next) => {
     try {
-      const email = req.body.email;
+      const email = req.query.email as string;
       await this.service.ResendVerificationEmail(email);
       res.status(200).json({ msg: "email resend successfully" });
     } catch (error) {
@@ -241,8 +241,8 @@ class UserController {
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
-    this.router.get("/verify-email/:token", this.verifyEmail);
-    this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.post("/verify-email/:token", this.verifyEmail);
+    this.router.post("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);

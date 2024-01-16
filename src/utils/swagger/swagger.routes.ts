@@ -31,37 +31,7 @@
  *         description: Bad request
  */
 
-/**
- * @swagger
- * /resend-verification-email:
- *   put:
- *     summary: Resend verification email for user
- *     description: Resend the verification email to the user's registered email address.
- *     tags:
- *       - User
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *           example:
- *             email: user@example.com
- *     responses:
- *       '200':
- *         description: Email sent successfully
- *       '400':
- *         description: Bad request
- */
+
 /**
  * @swagger
  * /enable-2fa-request:
@@ -224,3 +194,51 @@
  *       '401':
  *         description: Unauthorized - Invalid or expired refresh token
  */
+/**
+ * @swagger
+ * /verify-email/{token}:
+ *   post:
+ *     summary: Verify user email using a verification token.
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         description: The verification token received via email.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email successfully verified.
+ *       400:
+ *         description: Invalid verification token or failed to verify email.
+ *       500:
+ *         description: Internal server error.
+ */
+
+/**
+ * @swagger
+ * /Resend-verify-email:
+ *   post:
+ *     summary: Resend email verification for a user.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         description: The email address for which to resend the verification email.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email resend successful.
+ *         content:
+ *           application/json:
+ *             example:
+ *               msg: Email resend successfully
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ */
+

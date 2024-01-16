@@ -55,12 +55,6 @@ export class UserService {
     if (!decoded) {
       throw new Error("login first");
     }
-    console.log("Decoded Token:", decoded);
-
-    // user.verified = true;
-    // user.verificationToken = "";
-    // user.save();
-
     const user = await this.repo.verifyEmail(verificationToken);
     if (!user) {
       throw new Error("Failed to verify email");
