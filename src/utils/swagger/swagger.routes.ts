@@ -153,7 +153,7 @@
 
 /**
  * @swagger
- * /signup:
+ * /:
  *   post:
  *     summary: Register a new user
  *     tags:
@@ -169,8 +169,6 @@
  *               email:
  *                 type: string
  *               password:
- *                 type: string
- *               oAuthToken:
  *                 type: string
  *     responses:
  *       200:
