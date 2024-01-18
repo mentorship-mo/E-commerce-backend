@@ -362,3 +362,42 @@
  *       '500':
  *         description: Internal Server Error
  */
+
+
+
+
+/**
+* @swagger
+* /update-password:
+*   put:
+*     summary: Update user password
+*     description: Update user password after authentication using a Bearer token stored in a cookie.
+*     tags:
+*       - User
+*     security:
+*       - accessToken: []
+*     parameters:
+*       - in: cookie
+*         name: accessToken
+*         description: Bearer token for authentication
+*         required: true
+*         schema:
+*           type: string
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               oldPassword: string
+*               newPassword: string
+*           example:
+*             oldPassword: "1234"
+*             newPassword: "12345"
+*     responses:
+*       '200':
+*         description: User updated successfully
+*       '400':
+*         description: Bad request
+*/
