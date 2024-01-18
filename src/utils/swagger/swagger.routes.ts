@@ -119,13 +119,10 @@
  *       '400':
  *         description: Bad request
  */
-
 /**
  * @swagger
  * /:
  *   post:
- *     tags:
- *       - Signup new user
  *     description: Register a new user
  *     summary: Signup a new user
  *     requestBody:
@@ -151,8 +148,6 @@
  * @swagger
  * /signin:
  *   post:
- *     tags:
- *       - Sign in user
  *     summary: Sign in user
  *     requestBody:
  *       content:
@@ -175,9 +170,7 @@
  * @swagger
  * /refresh-token:
  *   get:
- *     tags:
- *          - get a new token from refresh token
- *     summary: Refresh Access Token
+ *     summary: get a new Access Token
  *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
  *
  *     security:
@@ -282,6 +275,14 @@
  *     description: Retrieve user data based on the provided access token stored in the "accessToken" cookie.
  *     tags:
  *       - User
+ *     parameters:
+ *      - in: header
+ *        name: accessToken
+ *        description: required access token for confirmation and get user info
+ *        required: true
+ *        schema:
+ *           type: string
+ *
  *     security:
  *       - accessToken: []
  *     responses:
