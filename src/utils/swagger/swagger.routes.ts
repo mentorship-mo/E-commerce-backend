@@ -393,8 +393,8 @@
 *               oldPassword: string
 *               newPassword: string
 *           example:
-*             oldPassword: "1234"
-*             newPassword: "12345"
+*             oldPassword: "string"
+*             newPassword: "string"
 *     responses:
 *       '200':
 *         description: User updated successfully
