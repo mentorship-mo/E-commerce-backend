@@ -362,7 +362,35 @@
  *       '500':
  *         description: Internal Server Error
  */
-
+/**
+ * @swagger
+ * /update-username:
+ *   patch:
+ *    summary: update user name.
+ *    tags:
+ *        - User
+ *    description: if the user wants to update his name from this end point he can do that.
+ *    parameters:
+ *       - in: header
+ *         name: accessToken
+ *         description: access token token for update the username
+ *         required: true
+ *         schema:
+ *           type: string
+ *    requestBody:
+ *         content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *    responses:
+ *       '200':
+ *         description: User has been updated successfully
+ *       '500':
+ *         description: Internal server error
+ */
 /**
  * @swagger
  * /update-password:
