@@ -1,15 +1,16 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../modules/user/user.model";
+import { User } from "../utils/types";
 
 class AuthenticationMiddleware {
   async authenticate(
-    req: any,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const token = req.cookies.jwt;
+      const token = req.cookies.accessToken;
       if (!token) {
         throw new Error(
           "You are not logged in. Please log in to get access to this route"
@@ -20,11 +21,12 @@ class AuthenticationMiddleware {
         process.env.JWT_SECRET_KEY as string
       );
       // Check if user exists
-      const currentUser = await UserModel.findOne({ email: decoded.email });
+      const currentUser  = await UserModel.findOne({ email: decoded.email });
       if (!currentUser) {
         throw new Error("The user that belongs to this token no longer exists");
       }
-      req.user = currentUser;
+      const userWithId: User = currentUser.toObject();
+       req.user = userWithId;      
       next();
     } catch (error) {
       res

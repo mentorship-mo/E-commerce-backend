@@ -2,7 +2,9 @@ import express, { RequestHandler } from "express";
 import { UserService } from "./user.service";
 import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
-// import { generateImageWithText } from "../../utils/image.generator";
+import passport from "passport";
+import { generateImageWithText } from "../../utils/image.generator";
+import { authMiddleware } from "../../middleware/Authentication";
 
 class UserController {
   private router = express.Router();
@@ -13,18 +15,19 @@ class UserController {
   authSignIn: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
-      const isAuthenticated = await this.service.authenticateUser(
-        email,
-        password
-      );
+      const user: User = await this.service.authenticateUser(email, password);
 
-      if (isAuthenticated) {
-        const accessToken = await jwt.sign({ email }, "secret", {
+      if (user) {
+        const accessToken = await jwt.sign({ email, id: user.id }, "secret", {
           expiresIn: "1h",
         });
-        const refreshToken = await jwt.sign({ email }, "refreshTokenSecret", {
-          expiresIn: "30d",
-        });
+        const refreshToken = await jwt.sign(
+          { email, id: user.id },
+          "refreshTokenSecret",
+          {
+            expiresIn: "30d",
+          }
+        );
         res.cookie("accessToken", accessToken, {
           httpOnly: true,
           maxAge: 3600000,
@@ -49,8 +52,8 @@ class UserController {
   createUser: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user: User = req.body;
-      // const imgName = generateImageWithText(req.body.name || "");
-      // user.image = imgName;
+      const imgName = await generateImageWithText(req.body.name || "");
+      user.image = imgName;
       await this.service.createUser(user);
       res.status(201).send({
         message: "User created successfully, check your email to verify",
@@ -82,7 +85,6 @@ class UserController {
     const jwtCookie = req.cookies.accessToken as string | undefined;
     if (!jwtCookie) {
       res.status(401).json({ error: "Unauthorized" });
-
       return;
     }
 
@@ -162,7 +164,89 @@ class UserController {
   };
   
 
+  googleLogin: RequestHandler = (req, res, next) => {
+    try {
+      passport.authenticate("google", { scope: ["profile", "email"] })(
+        req,
+        res,
+        next
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  googleRedirect: RequestHandler = (req, res, next) => {
+    passport.authenticate(
+      "google",
+      { failureRedirect: "/login" },
+      (err, user) => {
+        if (err) {
+          return res.status(500).json({ error: err });
+        }
+        if (!user) {
+          return res.status(401).json({ error: "Authentication failed" });
+        }
+        res.status(200).json({ user });
+      }
+    )(req, res, next);
+  };
+  updateAddresses: RequestHandler = async (req, res, next) => {
+    try {
+      const userId: any = req.user;
+      const { addresses } = req.body;
+      const user = await this.service.updateAddresses(userId, addresses);
+      res.status(200).json({ msg: "updated successfully", user });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  updateName: RequestHandler = async (req, res) => {
+    const { name } = req.body;
+    const token = req.cookies.accessToken as string;
+    try {
+      const user = await this.service.updateUserName(name, token);
+      if (!user) {
+        return res.send({ msg: "user is not found" });
+      }
+      res.send({ msg: "User has been updated successfully" });
+    } catch (err) {
+      res.status(500).send({ msg: "Internal server error" });
+    }
+  };
 
+  updatePassword: RequestHandler = async (req, res) => {
+    const userId: any = req.user;
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+      const result = await this.service.updatePassword(userId, oldPassword, newPassword);
+
+      if (result.status === 200) {
+        res.status(200).json({ msg: 'Password updated successfully' });
+      } else if (result.status === 401) {
+        res.status(401).json({ msg: 'Invalid old password' });
+      } else if (result.status === 404) {
+        res.status(404).json({ msg: 'User not found' });
+      } else {
+        res.status(500).json({ msg: 'Internal Server Error' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: 'Internal Server Error' });
+    }
+  };
+
+  updateEmail: RequestHandler = async (req, res, next) => {
+    const { userId, password, newEmail } = req.body;
+    try {
+        await this.service.updateEmail(userId, password, newEmail);
+        res.status(200).json({ message: "Email updated successfully" });
+      
+    } catch (error) {
+      console.error("Error updating email:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
@@ -172,6 +256,21 @@ class UserController {
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.post("/enable-2fa-Request", this.requestEnable2FA);
     this.router.post("/enable-2fa", this.enable2FA);
+    this.router.get("/me", this.getUserDataByToken);
+    this.router.get("/google", this.googleLogin);
+    this.router.get("/google/redirect", this.googleRedirect);
+    this.router.put(
+      "/update-addresses",
+      authMiddleware.authenticate,
+      this.updateAddresses
+    );
+    this.router.patch("/update-user", this.updateName);
+    this.router.put('/update-password', authMiddleware.authenticate, this.updatePassword);
+    this.router.put(
+      "/update-email",
+      authMiddleware.authenticate,
+      this.updateEmail
+    );
   }
   getRouter() {
     return this.router;

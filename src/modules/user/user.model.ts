@@ -24,13 +24,21 @@ const UserSchema = new Schema<User>(
         },
       },
     },
-    password: { type: String, required: true, min: 6 },
+    password: { type: String, min: 6 , required() {
+      return this.authProvider === "Local";
+    },},
     verified: {
       type: Boolean,
       default: false,
     },
+    addresses : {
+      street : String,
+      city : String,
+      zipCode : Number
+    },
     verificationToken: { type: String, default: "" },
-    oAuthToken: { type: String, enum: ["google", "facebook"] },
+    oAuthToken: { type: String },
+    authProvider : { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },
     image: String,
   },
@@ -40,7 +48,7 @@ const UserSchema = new Schema<User>(
 
 UserSchema.pre("save", async function (next) {
   const user = this;
-  if (user.isModified("password")) {
+  if (user.authProvider === "Local" && user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 10);
     next();
   }

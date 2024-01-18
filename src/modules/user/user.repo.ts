@@ -12,17 +12,17 @@ class userRepo implements userDAO {
   async createUser(user: User): Promise<void> {
     await this.model.create(user);
   }
-  // getUserById(id: string): Promise<User | null> {
-  //   throw new Error("Method not implemented.");
-  // }
-  // getUsers(): Promise<User[]> {
-  //   throw new Error("Method not implemented.");
-  // }
   async verifyEmail(verificationToken: string): Promise<any> {
-    return await this.model.findOneAndUpdate({ verificationToken }, { verified: true })
+    return await this.model.findOneAndUpdate(
+      { verificationToken },
+      { verified: true }
+    );
   }
   async getUserByEmail(email: string): Promise<User | null> {
-    return await this.model.findOne({ email })
+    return await this.model.findOne({ email });
+  }
+  async findGoogleId(id: string): Promise<User | null> {
+    return await this.model.findOne({ googleID: id });
   }
   async getUserById(id: string): Promise<User | null> {
     return await this.model.findById(id);
@@ -38,11 +38,37 @@ class userRepo implements userDAO {
       throw error;
     }
   }
+  updateUserAddresses = async (id: string, addresses: any): Promise<any> => {
+    return await this.model.findOneAndUpdate(
+      { _id: id },
+      { $set: { addresses } }
+    );
+  };
+  async updateNameByEmail(email: string, name: string) {
+    const user = await this.model.updateOne({ email }, { name }, { new: true });
+    return user;
+  }
+  async updateUserEmail(user: User): Promise<void> {
+    await this.model.findByIdAndUpdate(user.id, {
+      email: user.email,
+      verificationToken: user.verificationToken,
+    });
+  }
+
+  async findById(userId: string): Promise<User | null> {
+    return await this.model.findById(userId);
+  }
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    // Update the user's password
+    await this.model.findByIdAndUpdate(userId, { password: hashedPassword });
+  }
+  
 }
 
 
-type userRepoType = userRepo;
 
+type userRepoType = userRepo;
 const db = new userRepo(UserModel);
 
 export { userRepoType, db };
