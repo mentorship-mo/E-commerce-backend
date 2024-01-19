@@ -4,7 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { generateImageWithText } from "../../utils/image.generator";
-import { authMiddleware } from "../../middleware/Authentication";
+import { authMiddleware } from "../../middleware/authentication";
 
 class UserController {
   private router = express.Router();
@@ -211,6 +211,7 @@ class UserController {
 
   updatePassword: RequestHandler = async (req, res) => {
     const userId: any = req.user;
+
     const { oldPassword, newPassword } = req.body;
 
     try {
@@ -236,9 +237,10 @@ class UserController {
   };
 
   updateEmail: RequestHandler = async (req, res, next) => {
-    const { userId, password, newEmail } = req.body;
+    const userId: any = req.user;
+    const { password, email } = req.body;
     try {
-      await this.service.updateEmail(userId, password, newEmail);
+      await this.service.updateEmail(userId, password, email);
       res.status(200).json({ message: "Email updated successfully" });
     } catch (error) {
       console.error("Error updating email:", error);
@@ -261,7 +263,8 @@ class UserController {
       authMiddleware.authenticate,
       this.updateAddresses
     );
-    this.router.patch("/update-username", this.updateName);
+
+    this.router.put("/update-username", this.updateName);
     this.router.put(
       "/update-password",
       authMiddleware.authenticate,
