@@ -187,7 +187,8 @@ class UserController {
       const userId: any = req.user;
       const { addresses } = req.body;
       const user = await this.service.updateAddresses(userId, addresses);
-      res.status(200).json({ msg: "updated successfully", user });
+      const newUser  = user?.addresses
+      res.status(200).json({ msg: "updated successfully", newUser} );
     } catch (error) {
       console.log(error);
     }
