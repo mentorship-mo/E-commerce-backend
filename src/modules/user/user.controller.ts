@@ -201,7 +201,7 @@ class UserController {
     try {
       const user = await this.service.updateUserName(name, token);
       if (!user) {
-        return res.send({ msg: "user is not found " });
+        return res.send({ msg: "user is not found" });
       }
       res.send(user);
     } catch (err) {
