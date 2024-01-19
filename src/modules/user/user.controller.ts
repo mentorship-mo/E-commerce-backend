@@ -74,7 +74,7 @@ class UserController {
   };
   ResendVerificationEmail: RequestHandler = async (req, res, next) => {
     try {
-      const email = req.body.email;
+      const email = req.query.email as string;
       await this.service.ResendVerificationEmail(email);
       res.status(200).json({ msg: "email resend successfully" });
     } catch (error) {
@@ -207,29 +207,32 @@ class UserController {
     const { oldPassword, newPassword } = req.body;
 
     try {
-      const result = await this.service.updatePassword(userId, oldPassword, newPassword);
+      const result = await this.service.updatePassword(
+        userId,
+        oldPassword,
+        newPassword
+      );
 
       if (result.status === 200) {
-        res.status(200).json({ msg: 'Password updated successfully' });
+        res.status(200).json({ msg: "Password updated successfully" });
       } else if (result.status === 401) {
-        res.status(401).json({ msg: 'Invalid old password' });
+        res.status(401).json({ msg: "Invalid old password" });
       } else if (result.status === 404) {
-        res.status(404).json({ msg: 'User not found' });
+        res.status(404).json({ msg: "User not found" });
       } else {
-        res.status(500).json({ msg: 'Internal Server Error' });
+        res.status(500).json({ msg: "Internal Server Error" });
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ msg: 'Internal Server Error' });
+      res.status(500).json({ msg: "Internal Server Error" });
     }
   };
 
   updateEmail: RequestHandler = async (req, res, next) => {
     const { userId, password, newEmail } = req.body;
     try {
-        await this.service.updateEmail(userId, password, newEmail);
-        res.status(200).json({ message: "Email updated successfully" });
-      
+      await this.service.updateEmail(userId, password, newEmail);
+      res.status(200).json({ message: "Email updated successfully" });
     } catch (error) {
       console.error("Error updating email:", error);
       res.status(500).json({ error: "Internal Server Error" });
@@ -238,8 +241,8 @@ class UserController {
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
-    this.router.get("/verify-email/:token", this.verifyEmail);
-    this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.post("/verify-email/:token", this.verifyEmail);
+    this.router.post("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable2fa-Request", this.enable2FARequest);
@@ -251,8 +254,12 @@ class UserController {
       authMiddleware.authenticate,
       this.updateAddresses
     );
-    this.router.patch("/update-user", this.updateName);
-    this.router.put('/update-password', authMiddleware.authenticate, this.updatePassword);
+    this.router.patch("/update-username", this.updateName);
+    this.router.put(
+      "/update-password",
+      authMiddleware.authenticate,
+      this.updatePassword
+    );
     this.router.put(
       "/update-email",
       authMiddleware.authenticate,
