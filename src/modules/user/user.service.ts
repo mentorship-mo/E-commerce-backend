@@ -159,7 +159,7 @@ export class UserService {
       throw new Error("you are not authenticated");
     }
 
-    return await this.repo.updateNameByEmail(decoded.email, name);
+    return this.repo.updateNameByEmail(decoded.email, name);
   }
   async updateEmail(
     userId: string,
