@@ -51,6 +51,13 @@ const UserSchema = new Schema<User>(
   { timestamps: true }
 );
 
+UserSchema.set("toJSON", {
+  transform: function (doc, ret, options) {
+    delete ret.password;
+    return ret;
+  },
+});
+
 UserSchema.pre("save", async function (next) {
   const user = this;
   if (user.authProvider === "Local" && user.isModified("password")) {
