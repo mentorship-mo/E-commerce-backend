@@ -101,31 +101,32 @@ export class UserService {
     }
   };
 
- sendEnable2FAEmail =  async (email: string): Promise<void> => {
+  sendEnable2FAEmail = async (email: string): Promise<void> => {
     const user = await this.repo.getUserByEmail(email);
     if (!user) {
       throw new Error("Email Not Found");
     }
     user.enable2FAToken = enable2FAToken(user.id);
     sendRequstEnable2FA(user.email, 2, user.enable2FAToken);
-  }
-  async verifyEnable2FAToken( enable2FAToken: string): Promise<void> {
-  const decodedToken = jwt.verify(enable2FAToken, "secret");
+  };
+  async enable2FA(enable2FAToken: string): Promise<void> {
+    const decodedToken: any = jwt.verify(enable2FAToken, "secret");
 
     if (!decodedToken) {
       throw new Error("signing failed");
     }
     console.log("Decoded Token:", decodedToken);
-    
-  const user = await this.repo.verify2FA(enable2FAToken);
+
+    const user = await this.repo.verify2FA(decodedToken.id);
     if (!user) {
       throw new Error("Failed to verify enable2FA using email");
     }
     user.is2FAEnabled = true;
     user.enable2FAToken = "";
-    user.save();
-  
-}
+    await user.save();
+    //TODO:
+    // Send email that 2fa is successful enabled
+  }
 
   async authenticationGoogle(profile: Profile, done: any) {
     try {
@@ -165,7 +166,7 @@ export class UserService {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   async updateUserName(name: string, token: string) {
     const decoded = (await jwt.verify(token, "secret")) as { email: string };
     if (!decoded) {
@@ -211,35 +212,36 @@ export class UserService {
       throw error;
     }
   }
-  async updatePassword(userId: string, oldPassword: string, newPassword: string): Promise<{ status: number, message: string }> {
+  async updatePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ status: number; message: string }> {
     try {
       // Fetch the user from the database
       const user = await this.repo.findById(userId);
-  
+
       if (!user) {
-        return { status: 404, message: 'User not found' };
+        return { status: 404, message: "User not found" };
       }
-  
+
       // Check if the old password is correct
       const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-  
+
       if (!isPasswordValid) {
-        return { status: 401, message: 'Invalid old password' };
+        return { status: 401, message: "Invalid old password" };
       }
-  
+
       // Hash the new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-  
+
       // Update the user's password
       await this.repo.updatePassword(userId, hashedPassword);
-  
-      return { status: 200, message: 'Password updated successfully' };
+
+      return { status: 200, message: "Password updated successfully" };
     } catch (error) {
       console.error(error);
-      return { status: 500, message: 'Internal Server Error' };
+      return { status: 500, message: "Internal Server Error" };
     }
   }
-  
-
 }
-

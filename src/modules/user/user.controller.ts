@@ -145,7 +145,7 @@ class UserController {
   enableFA: RequestHandler = async (req, res, next): Promise<void> => {
     try {
       const enable2FAToken = req.params.token;
-      await this.service.verifyEmail(enable2FAToken);
+      await this.service.enable2FA(enable2FAToken);
       res.status(200).json({ message: "2FA enabled successfully" });
     } catch (error) {
       console.log(error);
