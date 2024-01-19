@@ -8,9 +8,9 @@ const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
 
-    is2FaEnabled : {
+    is2FaEnabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     email: {
       type: String,
@@ -24,26 +24,31 @@ const UserSchema = new Schema<User>(
         },
       },
     },
-    password: { type: String, min: 6 , required() {
-      return this.authProvider === "Local";
-    },},
+    password: {
+      type: String,
+      min: 6,
+      required() {
+        return this.authProvider === "Local";
+      },
+    },
     verified: {
       type: Boolean,
       default: false,
     },
-    addresses : {
-      street : String,
-      city : String,
-      zipCode : Number
-    },
+    addresses: [
+      {
+        street: String,
+        city: String,
+        zipCode: Number,
+      },
+    ],
     verificationToken: { type: String, default: "" },
     oAuthToken: { type: String },
-    authProvider : { type: String, enum: ["Local", "Google"], default: "Local" },
+    authProvider: { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },
     image: String,
   },
-  { timestamps: true },
-
+  { timestamps: true }
 );
 
 UserSchema.pre("save", async function (next) {
