@@ -203,7 +203,7 @@ class UserController {
       if (!user) {
         return res.send({ msg: "user is not found" });
       }
-      res.send({ msg: "User has been updated successfully" });
+      res.send(user);
     } catch (err) {
       res.status(500).send({ msg: "Internal server error" });
     }
