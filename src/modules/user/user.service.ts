@@ -33,6 +33,10 @@ export class UserService {
         throw new Error("User not found");
       }
 
+      if (!user.verified) {
+        throw new Error("User not verified");
+      }
+
       // check if password nmatch
       const passwordsMatch = await bcrypt.compare(password, user.password);
 
