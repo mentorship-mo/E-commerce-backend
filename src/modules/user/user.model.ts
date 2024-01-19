@@ -40,9 +40,10 @@ const UserSchema = new Schema<User>(
         street: String,
         city: String,
         zipCode: Number,
+        name : String ,
+        isDefault : Boolean
       },
     ],
-    verificationToken: { type: String, default: "" },
     oAuthToken: { type: String },
     authProvider: { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },
@@ -57,6 +58,12 @@ UserSchema.pre("save", async function (next) {
     user.password = await bcrypt.hash(user.password, 10);
     next();
   }
+});
+UserSchema.set("toJSON", {
+  transform: function (doc, ret, options) {
+    delete ret.password;
+    return ret;
+  },
 });
 
 // Create and export the User model

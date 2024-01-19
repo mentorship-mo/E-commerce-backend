@@ -64,9 +64,8 @@ class UserController {
   };
   verifyEmail: RequestHandler = async (req, res, next): Promise<void> => {
     try {
-      const verificationToken = req.query.token;
-      //FIXME: typing remove as string
-      await this.service.verifyEmail(verificationToken as string);
+      const verificationToken : any = req.query.token ;
+      await this.service.verifyEmail(verificationToken);
       res.status(201).json({ message: "Email verified successfully" });
     } catch (error) {
       console.log(error);
@@ -185,12 +184,10 @@ class UserController {
   };
   updateAddresses: RequestHandler = async (req, res, next) => {
     try {
-      //FIXME:
-      console.log(req.user);
       const userId: any = req.user;
       const { addresses } = req.body;
       const user = await this.service.updateAddresses(userId, addresses);
-      res.status(200).json({ msg: "updated successfully", user });
+      res.status(200).json({ msg: "updated successfully", user});
     } catch (error) {
       console.log(error);
     }
