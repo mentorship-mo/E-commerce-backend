@@ -53,6 +53,10 @@ class userRepo implements userDAO {
     // Update the user's password
     await this.model.findByIdAndUpdate(userId, { password: hashedPassword });
   }
+
+  async verify2FA(userId: string): Promise<any> {
+    return this.model.findOneAndUpdate({ _id: userId }, { is2FAEnabled: true });
+  }
 }
 
 type userRepoType = userRepo;

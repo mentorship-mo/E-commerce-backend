@@ -4,6 +4,7 @@ export type User = {
   name: string;
   verified?: boolean;
   verificationToken?: string;
+  enable2FAToken?:string;
   oAuthToken: String;
   authProvider: "Local" | "Google";
   otp?: string;

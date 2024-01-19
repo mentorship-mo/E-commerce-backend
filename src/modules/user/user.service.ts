@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 
 import { verificationToken } from "../../middleware/send-email";
 import { Profile } from "passport";
+import { sendRequstEnable2FA } from "../../middleware/send.Enable2FA";
+import { enable2FAToken } from "../../middleware/send.Enable2FA";
 
 export class UserService {
   private readonly repo: userRepoType;
@@ -97,23 +99,33 @@ export class UserService {
     }
   };
 
-  async enableFARequest(email: string) {
-    try {
-      await this.repo.getUserByEmail(email);
-    } catch (error) {
-      console.log(error);
+  sendEnable2FAEmail = async (email: string): Promise<void> => {
+    const user = await this.repo.getUserByEmail(email);
+    if (!user) {
+      throw new Error("Email Not Found");
     }
-  }
-  async enableFA(token: string) {
-    try {
-      const decoded = await jwt.verify(token, "secret");
-      if (!decoded) {
-        throw new Error("login first");
-      }
-    } catch (error) {
-      console.log(error);
+    user.enable2FAToken = enable2FAToken(user.id);
+    sendRequstEnable2FA(user.email, 2, user.enable2FAToken);
+  };
+
+  async verifyEnable2FA(enable2FAToken: string): Promise<void> {
+    const decodedToken: any = jwt.verify(enable2FAToken, "secret");
+
+    if (!decodedToken) {
+      throw new Error("signing failed");
     }
+    console.log("Decoded Token:", decodedToken);
+    const user = await this.repo.verify2FA(decodedToken.id);
+    if (!user) {
+      throw new Error("Failed to verify enable2FA using email");
+    }
+    user.is2FAEnabled = true;
+    user.enable2FAToken = "";
+    await user.save();
+    //TODO:
+    sendRequstEnable2FA(user.email, 3, user.enable2FAToken);
   }
+
   async authenticationGoogle(profile: Profile, done: any) {
     try {
       const currentUser = await this.repo.findGoogleId(profile.id);

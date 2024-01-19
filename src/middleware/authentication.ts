@@ -31,7 +31,6 @@ class AuthenticationMiddleware {
         .status(401)
         .json({ status: "fail", message: " You Are not authenticated" });
     }
-  }
-  ru;
+  };
 }
 export const authMiddleware = new AuthenticationMiddleware();
