@@ -59,6 +59,12 @@ UserSchema.pre("save", async function (next) {
     next();
   }
 });
+UserSchema.set("toJSON", {
+  transform: function (doc, ret, options) {
+    delete ret.password;
+    return ret;
+  },
+});
 
 // Create and export the User model
 export const UserModel = model<User>("User", UserSchema);
