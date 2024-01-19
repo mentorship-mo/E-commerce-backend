@@ -50,12 +50,12 @@ export class UserService {
     }
   }
   verifyEmail = async (verificationToken: string): Promise<void> => {
-    const decoded = jwt.verify(verificationToken, "secret");
-
+    const decoded: any = jwt.verify(verificationToken, "secret");
+    console.log(decoded);
     if (!decoded) {
       throw new Error("login first");
     }
-    const user = await this.repo.verifyEmail(verificationToken);
+    const user = await this.repo.verifyEmail(decoded?.id);
     if (!user) {
       throw new Error("Failed to verify email");
     }
@@ -153,7 +153,7 @@ export class UserService {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   async updateUserName(name: string, token: string) {
     const decoded = (await jwt.verify(token, "secret")) as { email: string };
     if (!decoded) {
@@ -199,35 +199,36 @@ export class UserService {
       throw error;
     }
   }
-  async updatePassword(userId: string, oldPassword: string, newPassword: string): Promise<{ status: number, message: string }> {
+  async updatePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ status: number; message: string }> {
     try {
       // Fetch the user from the database
       const user = await this.repo.findById(userId);
-  
+
       if (!user) {
-        return { status: 404, message: 'User not found' };
+        return { status: 404, message: "User not found" };
       }
-  
+
       // Check if the old password is correct
       const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-  
+
       if (!isPasswordValid) {
-        return { status: 401, message: 'Invalid old password' };
+        return { status: 401, message: "Invalid old password" };
       }
-  
+
       // Hash the new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-  
+
       // Update the user's password
       await this.repo.updatePassword(userId, hashedPassword);
-  
-      return { status: 200, message: 'Password updated successfully' };
+
+      return { status: 200, message: "Password updated successfully" };
     } catch (error) {
       console.error(error);
-      return { status: 500, message: 'Internal Server Error' };
+      return { status: 500, message: "Internal Server Error" };
     }
   }
-  
-
 }
-

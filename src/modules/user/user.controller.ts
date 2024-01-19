@@ -64,8 +64,9 @@ class UserController {
   };
   verifyEmail: RequestHandler = async (req, res, next): Promise<void> => {
     try {
-      const verificationToken = req.params.token;
-      await this.service.verifyEmail(verificationToken);
+      const verificationToken = req.query.token;
+      //FIXME: typing remove as string
+      await this.service.verifyEmail(verificationToken as string);
       res.status(201).json({ message: "Email verified successfully" });
     } catch (error) {
       console.log(error);
@@ -74,10 +75,11 @@ class UserController {
   };
   ResendVerificationEmail: RequestHandler = async (req, res, next) => {
     try {
-      const email = req.query.email as string;
+      const email = req.body.email as string;
       await this.service.ResendVerificationEmail(email);
       res.status(200).json({ msg: "email resend successfully" });
     } catch (error) {
+      console.log(error);
       res.status(500).json("Internal Server Error");
     }
   };
@@ -183,6 +185,8 @@ class UserController {
   };
   updateAddresses: RequestHandler = async (req, res, next) => {
     try {
+      //FIXME:
+      console.log(req.user);
       const userId: any = req.user;
       const { addresses } = req.body;
       const user = await this.service.updateAddresses(userId, addresses);
@@ -244,8 +248,8 @@ class UserController {
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
-    this.router.post("/verify-email/:token", this.verifyEmail);
-    this.router.post("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.post("/verify-email/", this.verifyEmail);
+    this.router.post("/resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable-2fa-Request", this.enableFARequest);

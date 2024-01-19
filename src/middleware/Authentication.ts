@@ -1,7 +1,6 @@
 import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../modules/user/user.model";
-import { User } from "../utils/types";
 
 class AuthenticationMiddleware {
   async authenticate(
@@ -21,12 +20,11 @@ class AuthenticationMiddleware {
         process.env.JWT_SECRET_KEY as string
       );
       // Check if user exists
-      const currentUser  = await UserModel.findOne({ email: decoded.email });
+      const currentUser = await UserModel.findOne({ email: decoded.email });
       if (!currentUser) {
         throw new Error("The user that belongs to this token no longer exists");
       }
-      const userWithId: User = currentUser.toObject();
-       req.user = userWithId;      
+      req.user = currentUser;
       next();
     } catch (error) {
       res
