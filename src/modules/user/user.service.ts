@@ -109,14 +109,14 @@ export class UserService {
     user.enable2FAToken = enable2FAToken(user.id);
     sendRequstEnable2FA(user.email, 2, user.enable2FAToken);
   };
-  async enable2FA(enable2FAToken: string): Promise<void> {
+
+  async verifyEnable2FA(enable2FAToken: string): Promise<void> {
     const decodedToken: any = jwt.verify(enable2FAToken, "secret");
 
     if (!decodedToken) {
       throw new Error("signing failed");
     }
     console.log("Decoded Token:", decodedToken);
-
     const user = await this.repo.verify2FA(decodedToken.id);
     if (!user) {
       throw new Error("Failed to verify enable2FA using email");
@@ -125,7 +125,7 @@ export class UserService {
     user.enable2FAToken = "";
     await user.save();
     //TODO:
-    // Send email that 2fa is successful enabled
+    sendRequstEnable2FA(user.email, 3, user.enable2FAToken);
   }
 
   async authenticationGoogle(profile: Profile, done: any) {

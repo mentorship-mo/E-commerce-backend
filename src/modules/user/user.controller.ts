@@ -142,16 +142,19 @@ class UserController {
       console.log(error);
     }
   };
-  enableFA: RequestHandler = async (req, res, next): Promise<void> => {
+
+  verifyEnable2FA: RequestHandler = async (req, res, next): Promise<void> => {
     try {
-      const enable2FAToken = req.params.token;
-      await this.service.enable2FA(enable2FAToken);
+      const enable2FAToken = req.query.enable2FAToken;
+      await this.service.verifyEnable2FA(enable2FAToken as string);
+      console.log(enable2FAToken);
       res.status(200).json({ message: "2FA enabled successfully" });
     } catch (error) {
       console.log(error);
       res.status(500).json("Internal Server Error");
     }
   };
+
   googleLogin: RequestHandler = (req, res, next) => {
     try {
       passport.authenticate("google", { scope: ["profile", "email"] })(
@@ -246,7 +249,7 @@ class UserController {
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable2fa-Request", this.enable2FARequest);
-    this.router.get("/enable-2fa/:enable2FAToken", this.enableFA);
+    this.router.post("/verify-2FA/", this.verifyEnable2FA);
     this.router.get("/google", this.googleLogin);
     this.router.get("/google/redirect", this.googleRedirect);
     this.router.put(
