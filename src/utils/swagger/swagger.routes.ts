@@ -33,37 +33,6 @@
 
 /**
  * @swagger
- * /resend-verification-email:
- *   put:
- *     summary: Resend verification email for user
- *     description: Resend the verification email to the user's registered email address.
- *     tags:
- *       - User
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *           example:
- *             email: user@example.com
- *     responses:
- *       '200':
- *         description: Email sent successfully
- *       '400':
- *         description: Bad request
- */
-/**
- * @swagger
  * /enable-2fa-request:
  *   post:
  *     summary: Request to enable Two-Factor Authentication (2FA)
@@ -150,14 +119,12 @@
  *       '400':
  *         description: Bad request
  */
-
 /**
  * @swagger
- * /signup:
+ * /:
  *   post:
- *     summary: Register a new user
- *     tags:
- *       - Authentication
+ *     description: Register a new user
+ *     summary: Signup a new user
  *     requestBody:
  *       content:
  *         application/json:
@@ -169,8 +136,6 @@
  *               email:
  *                 type: string
  *               password:
- *                 type: string
- *               oAuthToken:
  *                 type: string
  *     responses:
  *       200:
@@ -184,8 +149,6 @@
  * /signin:
  *   post:
  *     summary: Sign in user
- *     tags:
- *       - Authentication
  *     requestBody:
  *       content:
  *         application/json:
@@ -206,17 +169,16 @@
 /**
  * @swagger
  * /refresh-token:
- *   post:
- *     summary: Refresh Access Token
+ *   get:
+ *     summary: get a new Access Token
  *     description: The refresh token is used to generate a new access token. Typically, if the access token has an expiration date, once it expires, the user would have to authenticate again to obtain an access token. It may also be necessary to generate a new access token when you want to access a resource that has not been accessed before.
- *     tags:
- *       - Authentication
+ *
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
+ *         name: refreshToken
+ *         description: refresh token token for authentication
  *         required: true
  *         schema:
  *           type: string
@@ -225,4 +187,243 @@
  *         description: New access token generated successfully
  *       '401':
  *         description: Unauthorized - Invalid or expired refresh token
+ */
+/**
+ * @swagger
+ * /verify-email/{token}:
+ *   post:
+ *     summary: Verify user email using a verification token.
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         description: The verification token received via email.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email successfully verified.
+ *       400:
+ *         description: Invalid verification token or failed to verify email.
+ *       500:
+ *         description: Internal server error.
+ */
+
+/**
+ * @swagger
+ * /Resend-verify-email:
+ *   post:
+ *     summary: Resend email verification for a user.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         description: The email address for which to resend the verification email.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email resend successful.
+ *         content:
+ *           application/json:
+ *             example:
+ *               msg: Email resend successfully
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /google:
+ *   get:
+ *     summary: Initiate Google OAuth authentication
+ *     description: Endpoint to start the Google OAuth authentication process.
+ *     responses:
+ *       '200':
+ *         description: Successfully initiated authentication.
+ */
+
+/**
+ * @swagger
+ * /google/redirect:
+ *   get:
+ *     summary: Handle Google OAuth redirect
+ *     description: Endpoint to handle the redirect from Google OAuth after authentication.
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         description: The authentication code received from Google.
+ *     responses:
+ *       '200':
+ *         description: Successfully authenticated and redirected.
+ *       '401':
+ *         description: Authentication failed.
+ *       '500':
+ *         description: Internal server error.
+ */
+
+/**
+ * @swagger
+ * /me:
+ *   get:
+ *     summary: Get user data by token
+ *     description: Retrieve user data based on the provided access token stored in the "accessToken" cookie.
+ *     tags:
+ *       - User
+ *     parameters:
+ *      - in: header
+ *        name: accessToken
+ *        description: required access token for confirmation and get user info
+ *        required: true
+ *        schema:
+ *           type: string
+ *
+ *     security:
+ *       - accessToken: []
+ *     responses:
+ *       '200':
+ *         description: User data retrieved successfully
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /update-email:
+ *   put:
+ *     summary: Update user email address
+ *     description: Update the email address of the authenticated user.
+ *     tags:
+ *       - User
+ *     security:
+ *       - accessToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               newEmail:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Email updated successfully
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /update-addresses:
+ *   put:
+ *     summary: Update user addresses
+ *     description: Update the addresses of the authenticated user.
+ *     tags:
+ *       - User
+ *     security:
+ *       - accessToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               addresses:
+ *                 type: object
+ *                 properties:
+ *                   street:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   zipCode:
+ *                     type: number
+ *             example:
+ *               addresses:
+ *                 street: "123 Main St"
+ *                 city: "Cityville"
+ *                 zipCode: 12345
+ *     responses:
+ *       '200':
+ *         description: Addresses updated successfully
+ *       '401':
+ *         description: Unauthorized - Token is missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /update-username:
+ *   patch:
+ *    summary: update user name.
+ *    tags:
+ *        - User
+ *    description: if the user wants to update his name from this end point he can do that.
+ *    parameters:
+ *       - in: header
+ *         name: accessToken
+ *         description: access token token for update the username
+ *         required: true
+ *         schema:
+ *           type: string
+ *    requestBody:
+ *         content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *    responses:
+ *       '200':
+ *         description: User has been updated successfully
+ *       '500':
+ *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /update-password:
+ *   put:
+ *     summary: Update user password
+ *     description: Update user password after authentication using a Bearer token stored in a cookie.
+ *     tags:
+ *       - User
+ *     security:
+ *       - accessToken: []
+ *     parameters:
+ *       - in: cookie
+ *         name: accessToken
+ *         description: Bearer token for authentication
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               oldPassword: string
+ *               newPassword: string
+ *           example:
+ *             oldPassword: "string"
+ *             newPassword: "string"
+ *     responses:
+ *       '200':
+ *         description: User updated successfully
+ *       '400':
+ *         description: Bad request
  */
