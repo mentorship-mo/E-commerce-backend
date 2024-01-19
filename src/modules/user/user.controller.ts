@@ -4,7 +4,7 @@ import { User } from "../../utils/types";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { generateImageWithText } from "../../utils/image.generator";
-import { authMiddleware } from "../../middleware/Authentication";
+import { authMiddleware } from "../../middleware/authentication";
 
 class UserController {
   private router = express.Router();
@@ -64,7 +64,7 @@ class UserController {
   };
   verifyEmail: RequestHandler = async (req, res, next): Promise<void> => {
     try {
-      const verificationToken = req.params.token;
+      const verificationToken : any = req.query.token ;
       await this.service.verifyEmail(verificationToken);
       res.status(201).json({ message: "Email verified successfully" });
     } catch (error) {
@@ -74,10 +74,11 @@ class UserController {
   };
   ResendVerificationEmail: RequestHandler = async (req, res, next) => {
     try {
-      const email = req.query.email as string;
+      const email = req.body.email as string;
       await this.service.ResendVerificationEmail(email);
       res.status(200).json({ msg: "email resend successfully" });
     } catch (error) {
+      console.log(error);
       res.status(500).json("Internal Server Error");
     }
   };
@@ -186,7 +187,7 @@ class UserController {
       const userId: any = req.user;
       const { addresses } = req.body;
       const user = await this.service.updateAddresses(userId, addresses);
-      res.status(200).json({ msg: "updated successfully", user });
+      res.status(200).json({ msg: "updated successfully", user});
     } catch (error) {
       console.log(error);
     }
@@ -207,6 +208,7 @@ class UserController {
 
   updatePassword: RequestHandler = async (req, res) => {
     const userId: any = req.user;
+
     const { oldPassword, newPassword } = req.body;
 
     try {
@@ -232,9 +234,10 @@ class UserController {
   };
 
   updateEmail: RequestHandler = async (req, res, next) => {
-    const { userId, password, newEmail } = req.body;
+    const userId: any = req.user;
+    const { password, email } = req.body;
     try {
-      await this.service.updateEmail(userId, password, newEmail);
+      await this.service.updateEmail(userId, password, email);
       res.status(200).json({ message: "Email updated successfully" });
     } catch (error) {
       console.error("Error updating email:", error);
@@ -244,8 +247,8 @@ class UserController {
   initRoutes() {
     this.router.post("/", this.createUser);
     this.router.post("/signin", this.authSignIn);
-    this.router.post("/verify-email/:token", this.verifyEmail);
-    this.router.post("/Resend-verify-email", this.ResendVerificationEmail);
+    this.router.post("/verify-email/", this.verifyEmail);
+    this.router.post("/resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
     this.router.post("/enable2fa-Request", this.enable2FARequest);
@@ -257,7 +260,8 @@ class UserController {
       authMiddleware.authenticate,
       this.updateAddresses
     );
-    this.router.patch("/update-username", this.updateName);
+
+    this.router.put("/update-username", this.updateName);
     this.router.put(
       "/update-password",
       authMiddleware.authenticate,

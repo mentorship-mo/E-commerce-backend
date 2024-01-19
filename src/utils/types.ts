@@ -1,4 +1,4 @@
-export type  User = {
+export type User = {
   id: string;
   email: string;
   name: string;
@@ -6,24 +6,22 @@ export type  User = {
   verificationToken?: string;
   enable2FAToken?:string;
   oAuthToken: String;
-  authProvider : "Local" | "Google"
+  authProvider: "Local" | "Google";
   otp?: string;
   image: string;
   addresses?: {
     street: string;
     city: string;
     zipCode: number;
-  };
-  is2FAEnabled?: boolean
-}& (Google | Local)
-interface Google  { 
-  authProvider : "Google",
-  oAuthToken : string
-  password ?: string
+  }[];
+  is2FaEnabled?: boolean;
+} & (Google | Local);
+interface Google {
+  authProvider: "Google";
+  oAuthToken: string;
+  password?: string;
 }
-interface Local { 
-  authProvider : "Local",
-  password : string
+interface Local {
+  authProvider: "Local";
+  password: string;
 }
-
- 

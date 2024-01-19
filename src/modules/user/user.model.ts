@@ -7,10 +7,9 @@ import bcrypt from "bcryptjs";
 const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
-
-    is2FAEnabled : {
+    is2FaEnabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     email: {
       type: String,
@@ -24,27 +23,32 @@ const UserSchema = new Schema<User>(
         },
       },
     },
-    password: { type: String, min: 6 , required() {
-      return this.authProvider === "Local";
-    },},
+    password: {
+      type: String,
+      min: 6,
+      required() {
+        return this.authProvider === "Local";
+      },
+    },
     verified: {
       type: Boolean,
       default: false,
     },
-    addresses : {
-      street : String,
-      city : String,
-      zipCode : Number
-    },
-    verificationToken: { type: String, default: "" },
-    enable2FAToken: { type: String, default: "" },
+    addresses: [
+      {
+        street: String,
+        city: String,
+        zipCode: Number,
+        name : String ,
+        isDefault : Boolean
+      },
+    ],
     oAuthToken: { type: String },
-    authProvider : { type: String, enum: ["Local", "Google"], default: "Local" },
+    authProvider: { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },
     image: String,
   },
-  { timestamps: true },
-
+  { timestamps: true }
 );
 
 UserSchema.pre("save", async function (next) {
@@ -53,6 +57,12 @@ UserSchema.pre("save", async function (next) {
     user.password = await bcrypt.hash(user.password, 10);
     next();
   }
+});
+UserSchema.set("toJSON", {
+  transform: function (doc, ret, options) {
+    delete ret.password;
+    return ret;
+  },
 });
 
 // Create and export the User model

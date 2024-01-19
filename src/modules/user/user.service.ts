@@ -1,10 +1,10 @@
-import { sendVerificationEmail } from "../../middleware/send.email";
+import { sendVerificationEmail } from "../../middleware/send-email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { verificationToken } from "../../middleware/send.email";
+import { verificationToken } from "../../middleware/send-email";
 import { Profile } from "passport";
 import { sendRequstEnable2FA } from "../../middleware/send.Enable2FA";
 import { enable2FAToken } from "../../middleware/send.Enable2FA";
@@ -17,13 +17,9 @@ export class UserService {
   }
   async createUser(userData: User): Promise<void> {
     try {
-      userData.verificationToken = verificationToken(userData.id);
-      userData.enable2FAToken = enable2FAToken(userData.id);
+      const token = verificationToken(userData.id);
       await this.repo.createUser(userData);
-      if (!userData.verificationToken) {
-        throw new Error("Failed to generate verification token");
-      }
-      sendVerificationEmail(userData.email, 5, userData.verificationToken);
+      sendVerificationEmail(userData.email, 5, token);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -37,6 +33,10 @@ export class UserService {
       if (!user) {
         // user not found with the provided email
         throw new Error("User not found");
+      }
+
+      if (!user.verified) {
+        throw new Error("User not verified");
       }
 
       // check if password nmatch
@@ -53,17 +53,15 @@ export class UserService {
     }
   }
   verifyEmail = async (verificationToken: string): Promise<void> => {
-    const decoded = jwt.verify(verificationToken, "secret");
-
+    const decoded: any = jwt.verify(verificationToken, "secret");
     if (!decoded) {
       throw new Error("login first");
     }
-    const user = await this.repo.verifyEmail(verificationToken);
+    const user = await this.repo.verifyEmail(decoded?.id);
     if (!user) {
       throw new Error("Failed to verify email");
     }
     user.verified = true;
-    user.verificationToken = "";
     user.save();
   };
   ResendVerificationEmail = async (email: string): Promise<void> => {
