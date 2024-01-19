@@ -40,9 +40,10 @@ const UserSchema = new Schema<User>(
         street: String,
         city: String,
         zipCode: Number,
+        name : String ,
+        isDefault : Boolean
       },
     ],
-    verificationToken: { type: String, default: "" },
     oAuthToken: { type: String },
     authProvider: { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },
