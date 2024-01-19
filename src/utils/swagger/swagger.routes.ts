@@ -33,21 +33,18 @@
 
 /**
  * @swagger
- * /enable-2fa-request:
+ * /enable2fa-Request:
  *   post:
  *     summary: Request to enable Two-Factor Authentication (2FA)
  *     description: Request to enable 2FA for a user account
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
- *         required: true
- *         schema:
- *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
  *     responses:
  *       '200':
  *         description: 2FA request sent successfully
@@ -58,7 +55,7 @@
 /**
  * @swagger
  * /enable-2fa:
- *   post:
+ *   get:
  *     summary: Enable Two-Factor Authentication (2FA)
  *     description: Enable Two-Factor Authentication (2FA)
  *     tags:
