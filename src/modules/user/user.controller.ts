@@ -133,26 +133,23 @@ class UserController {
     }
   };
 
-  enableFARequest: RequestHandler = async (req, res) => {
+  enable2FARequest: RequestHandler = async (req, res) => {
     try {
       const { email } = req.body;
-      await this.service.enableFARequest(email);
+      await this.service.sendEnable2FAEmail(email);
       res.status(200).json({ message: "Email sent successfully" });
     } catch (error) {
       console.log(error);
     }
   };
-  enableFA: RequestHandler = (req, res) => {
+  enableFA: RequestHandler = async (req, res, next): Promise<void> => {
     try {
-      const token: string | undefined = req.query.token as string | undefined;
-      if (token === undefined) {
-        res.status(404).json({ msg: "token is missing" });
-        return;
-      }
-      this.service.enableFA(token);
+      const enable2FAToken = req.params.token;
+      await this.service.verifyEmail(enable2FAToken);
       res.status(200).json({ message: "2FA enabled successfully" });
     } catch (error) {
       console.log(error);
+      res.status(500).json("Internal Server Error");
     }
   };
   googleLogin: RequestHandler = (req, res, next) => {
@@ -245,8 +242,8 @@ class UserController {
     this.router.get("/Resend-verify-email", this.ResendVerificationEmail);
     this.router.get("/refresh-token", this.getRefreshToken);
     this.router.get("/me", this.getUserDataByToken);
-    this.router.post("/enable-2fa-Request", this.enableFARequest);
-    this.router.post("/enable-2fa", this.enableFA);
+    this.router.post("/enable2fa-Request", this.enable2FARequest);
+    this.router.get("/enable-2fa/:enable2FAToken", this.enableFA);
     this.router.get("/google", this.googleLogin);
     this.router.get("/google/redirect", this.googleRedirect);
     this.router.put(

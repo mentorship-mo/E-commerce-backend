@@ -4,6 +4,7 @@ export type  User = {
   name: string;
   verified?: boolean;
   verificationToken?: string;
+  enable2FAToken?:string;
   oAuthToken: String;
   authProvider : "Local" | "Google"
   otp?: string;
@@ -13,7 +14,7 @@ export type  User = {
     city: string;
     zipCode: number;
   };
-  is2FaEnabled ?: boolean
+  is2FAEnabled?: boolean
 }& (Google | Local)
 interface Google  { 
   authProvider : "Google",

@@ -8,7 +8,7 @@ const UserSchema = new Schema<User>(
   {
     name: { type: String, required: true },
 
-    is2FaEnabled : {
+    is2FAEnabled : {
       type: Boolean,
       default: false
     },
@@ -37,6 +37,7 @@ const UserSchema = new Schema<User>(
       zipCode : Number
     },
     verificationToken: { type: String, default: "" },
+    enable2FAToken: { type: String, default: "" },
     oAuthToken: { type: String },
     authProvider : { type: String, enum: ["Local", "Google"], default: "Local" },
     otp: { type: String, default: "" },

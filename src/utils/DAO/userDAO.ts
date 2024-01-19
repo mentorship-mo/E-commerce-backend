@@ -5,4 +5,5 @@ export interface userDAO {
     getUserByEmail(email :string ) : Promise<User |null>
     getUserByEmail(email:string) : Promise<User|null>
     verifyEmail(verificationToken : string) : Promise<any>
+    verify2FA(verifyEnable2FAToken : string) : Promise<any>
 }
