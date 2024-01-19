@@ -1,4 +1,4 @@
-import { userDAO } from "../../utils/DAO/userDAO";
+import { userDAO } from "../../utils/DAO/user-dao";
 import { User } from "../../utils/types";
 import { Model } from "mongoose";
 import { UserModel } from "./user.model";

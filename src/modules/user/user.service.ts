@@ -1,10 +1,10 @@
-import { sendVerificationEmail } from "../../middleware/send.email";
+import { sendVerificationEmail } from "../../middleware/send-email";
 import { User } from "../../utils/types";
 import { userRepoType } from "./user.repo";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { verificationToken } from "../../middleware/send.email";
+import { verificationToken } from "../../middleware/send-email";
 import { Profile } from "passport";
 
 export class UserService {
