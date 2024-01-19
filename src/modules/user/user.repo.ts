@@ -28,8 +28,18 @@ class userRepo implements userDAO {
     return this.model.findOneAndUpdate({ _id: id }, { $set: { addresses } });
   };
   async updateNameByEmail(email: string, name: string) {
-    const user = await this.model.updateOne({ email }, { name }, { new: true });
-    return user;
+    const user = await this.model
+      .findOneAndUpdate({ email }, { name }, { new: true })
+      .lean();
+
+    const userObject = user;
+    delete userObject?.password;
+    delete userObject?.is2FaEnabled;
+    delete userObject?.verified;
+    // delete userObject?.authProvider;
+    delete userObject?.otp;
+
+    return userObject;
   }
   updateUserEmail(user: User): Promise<User | null> {
     return this.model
