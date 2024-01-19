@@ -53,37 +53,25 @@
  */
 
 /**
- * @swagger
- * /enable-2fa:
- *   get:
- *     summary: Enable Two-Factor Authentication (2FA)
- *     description: Enable Two-Factor Authentication (2FA)
+  * @swagger
+ * /verify-2FA:
+ *   post:
+ *     summary: Verify Two-Factor Authentication (2FA)
+ *     description: Verify Two-Factor Authentication (2FA) using a token
  *     tags:
  *       - Authentication
- *     security:
- *       - bearerAuth: []
  *     parameters:
- *       - in: header
- *         name: Authorization
- *         description: Bearer token for authentication
+ *       - in: query
+ *         name: enable2FAToken
+ *         description: Token for enabling 2FA
  *         required: true
  *         schema:
  *           type: string
- *       - in: body
- *         name: Verification Code
- *         description: Verification code for enabling 2FA
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             code:
- *               type: string
- *               description: The verification code for enabling 2FA
  *     responses:
  *       '200':
  *         description: 2FA enabled successfully
- *       '400':
- *         description: Bad request or invalid verification code
+ *       '500':
+ *         description: Internal Server Error
  */
 
 /**
