@@ -1,12 +1,10 @@
 import mongoose, { Connection } from "mongoose";
 
-const dbConnectionString =
-  process.env.DB_CONNECTION_STRING ||
-  "mongodb+srv://mentorshipatweb:mentorship@mentorship.rtuihiw.mongodb.net";
+const dbConnectionString = process.env.DB_URI;
 
 const connectToMongoDB = async (): Promise<Connection> => {
   try {
-    const connection = await mongoose.connect(dbConnectionString);
+    const connection = await mongoose.connect(dbConnectionString as string);
     console.log(`DataBase connected ON : ${connection.connection.host}`);
     return connection.connection;
   } catch (error) {
