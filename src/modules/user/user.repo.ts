@@ -32,14 +32,7 @@ class userRepo implements userDAO {
       .findOneAndUpdate({ email }, { name }, { new: true })
       .lean();
 
-    const userObject = user;
-    delete userObject?.password;
-    delete userObject?.is2FaEnabled;
-    delete userObject?.verified;
-    // delete userObject?.authProvider;
-    delete userObject?.otp;
-
-    return userObject;
+    return user;
   }
   updateUserEmail(user: User): Promise<User | null> {
     return this.model
