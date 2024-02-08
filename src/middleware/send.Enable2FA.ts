@@ -4,26 +4,28 @@ const defaultClient = SibApiV3Sdk.ApiClient.instance
 
 // Configure API key authorization: api-key
 const apiKey = defaultClient.authentications['api-key']
-apiKey.apiKey = process.env.SENDINBLUE_API_KEY  
+apiKey.apiKey = process.env.SENDINBLUE_API_KEY_2FA 
+
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
 
 const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
-sendSmtpEmail.templateId = 5
 
-export const sendVerificationEmail = (email: string ,verificationToken : string) => {
 
-    sendSmtpEmail.subject = 'Verification Link'
+
+export const sendRequstEnable2FA = (email: string  , templateID : number, enable2FAToken: string) => {
+    sendSmtpEmail.templateId = templateID
+    sendSmtpEmail.subject = 'Enable 2FA By Email'
     sendSmtpEmail.sender = {
-        name: 'e-c',
-        email: 'e-c@e-c.com',
+        name: 'EShopper',
+        email: 'lamiaaselim1896@gmail.com',
     }
     sendSmtpEmail.to = [{
         email: email,
         name: 'Receiver Name',
     }]
     sendSmtpEmail.params = {
-        verificationToken: verificationToken,
+        enable2FAToken: enable2FAToken,
         email: email
     }
 
@@ -32,10 +34,10 @@ export const sendVerificationEmail = (email: string ,verificationToken : string)
             console.log('API called successfully. Returned data:', data)
         })
         .catch(function (error) {
-            console.error('Error sending verification email:', error)
+            console.error('Error sending enable2FA request:', error.message)
         })
 }
 
-export function verificationToken(id : String){
-    return jwt.sign({ id: id }, 'secret', { expiresIn: '2m' })
-  }
+export function enable2FAToken(id : String){
+    return jwt.sign({ id: id }, 'secret', { expiresIn: '10m' })
+}

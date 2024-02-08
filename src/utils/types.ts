@@ -1,11 +1,27 @@
-export interface User {
+export type User = {
   id: string;
-  password: string;
   email: string;
   name: string;
-  verified: boolean;
+  verified?: boolean;
   verificationToken?: string;
-  oAuthToken?: "google" | "facebook";
+  enable2FAToken?:string;
+  oAuthToken: String;
+  authProvider: "Local" | "Google";
   otp?: string;
   image: string;
+  addresses?: {
+    street: string;
+    city: string;
+    zipCode: number;
+  }[];
+  is2FaEnabled?: boolean;
+} & (Google | Local);
+interface Google {
+  authProvider: "Google";
+  oAuthToken: string;
+  password?: string;
+}
+interface Local {
+  authProvider: "Local";
+  password: string;
 }
